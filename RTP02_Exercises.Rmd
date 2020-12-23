@@ -133,7 +133,6 @@ ts.plot(ts.y4, main ='Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y
 Remove the linear trend by applying backward differencing on timeseries created
 from the following models:
 
-
 a) Xt ∼ 0.5t + 1 + Ut, where Ut ∼ U(−1, 1)
 ```{r,warning=F,error=F}
 t <- seq(1,100,length =100)
@@ -220,6 +219,7 @@ hstart.adj.trend <- diff(hstart.adj.season, lag = 1)
 plot(hstart.adj.trend, lwd = 2, main = 'hstart dataset after eliminating season and trend effects')
 ```
 
+
 # Exercise 2.3
 To test ideas and algorithms, R comes with built-in data sets. The data used in this
 exercise is called co2 and contains atmospheric concentrations of CO2 in parts per
@@ -241,6 +241,7 @@ plot(co2.adj.season, lwd = 1.5, main = 'co2 dataset after eliminating seasonal p
 co2.adj.bd <- diff(co2.adj.season, lag = 1, differences = 1)
 plot(co2.adj.bd, lwd = 1.5, main = 'co2 dataset after eliminating seasonal pattern with diff = 1, lag =12 and diff = 1, lag = 1')
 ```
+
 
 # Exercise 2.4
 Once again have a look at the co2 data set. In this exercise you should
@@ -276,3 +277,197 @@ co2.data <- co2
 co2.data.decomp <- decompose(co2.data)
 plot(co2.data.decomp, lwd = 1.5, col = 'red')
 ```
+
+
+## Series 3
+
+# Exercise 3.1
+Below you find the plots and the correlograms of four datasets. The correlograms have been permutated. Please find for each data sets (A-D) the appropriate corellogram
+(1 - 4).
+```{r pressure, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Exercise_3.1.JPG")
+```
+Solution:
+A - 2
+B - 3
+C - 1
+D - 4
+
+
+# Exercise 3.2
+Let us now consider the electricity production of Australia in GWh in the period from
+January 1958 to December 1990. You may download the data from
+http://stat.ethz.ch/Teaching/Datasets/WBL/cbe.dat.
+
+The aim of this exercise is to compare the effect of different algorithms to decompose
+a time series representation in trend, seasonality and remainder by means of their
+(partial) autocorrelation function.
+```{r}
+
+
+```
+
+a) Start by considering the plot of the time series. Why is not meaningful to interpret the correlogram of this time series?
+Explain in a few sentences.
+```{r}
+
+
+```
+
+b) Decompose the time series into trend, seasonal component and remainder using
+the R function decompose(), which performs the decomposition with moving
+averages. Plot the remainder and its correlogram and interpret the plots in a few
+sentences.
+The function employs a filter to estimate the trend; therefore, the first and the
+last few entries of the decomposition are not defined, i.e. the have the value NA
+in R. To prevent issues of R, the parameter na.action = na.pass (asking R
+to ignore NA entries) has to be employed.
+```{r}
+
+
+```
+
+c) Decompose the log-transformed time series using the R function stl(). Estimate the seasonal effect once by averaging over all years (parameter s.window
+= "periodic") and once by choosing an appropriate smoothing window (parameter s.window = ...). Recall that the window length has to be odd. An
+appropriate smoothing window may be determined by the R-function monthplot().
+For both estimation approaches (averaging and smoothing window), plot the
+remainder and its correlogram, and comment on the plots.
+```{r}
+
+```
+
+d) Explain why you used the parameter type = "multiplicative" in Task
+b), and why you log-transformed the time series before performing an stl()
+decomposition in Task c).
+```{r}
+
+```
+
+e) As a last algorithm consider the differencing approach. Choose a lag of 1 and 12
+(months) to eliminate a trend and periodic structures. Plot the resulting time series and autocorrelation function. Compare the results to the previous methods.
+```{r}
+
+
+```
+
+
+# Exercise 3.3
+In this exercise, we will calculate the lagged scatter plot and the plug-in
+estimator without employing the internal R function.
+
+a) Write a function to calculate the lagged scatter plot estimator for the autocorrelation. For this, you may extend the code given in the lecture notes.
+```{r}
+
+```
+
+b) Develop a function to calculate the plug-in estimator for the autocorrelation.
+```{r}
+
+```
+
+c) Calculate the two estimates for the beer and the chicken dataset. The beer
+and the chicken dataset is contained in the "fma"package. In case it is not already loaded, one can load it with the command library(fma).
+```{r}
+
+
+```
+
+
+## Series 4
+
+# Exercise 4.1
+In this exercise, we would like to investigate the properties of an AR(1) process.
+
+a) Simulate a realisation of the process
+Xt = 0.8 · Xt−1 + et
+with et an innovation process of length 1000.
+```{r}
+
+
+```
+
+b) Calculate the theoretical autocorrelation function and the plug-in estimator of
+the autocorrelation of the simulation results in a) and plot both curves for lags
+from 0 to 100.
+```{r}
+
+```
+
+c) What is the functional dependence of the theoretical autocorrelation function
+on the lag k and α1 = 0.8?
+```{r}
+
+```
+
+d) Now compare the theoretical partical autocorrelation function with the estimated version for the simulated process. Which particularity do you observe for the two representations?
+```{r}
+
+```
+
+
+# Exercise 4.2
+An analytical device measures the creatine concentration of human muscular tissue.
+In this exercise, we would like to check whether it is operating correctly, i.e. the measured values does not depend on the measuring instance.
+
+A sample with known concentration is split into 157 samples and measured by the
+device one after the other. You can find them in the data under
+http://stat.ethz.ch/Teaching/Datasets/WBL/kreatin.dat.
+In this exercise, we focus only on the variable "gehalt"(content) in the data.
+
+a) Which stochastic model should this series of data follow if the machine is working correctly?
+```{r}
+
+```
+
+b) Use the time series plot, the autocorrelations (and the partial autocorrelations)
+to determine whether these data fit the ideal model found in Part a) or not.
+```{r}
+
+``` 
+
+
+# Exercise 4.3
+In this exercise, we consider two time series ts1 and ts2, which putatively were
+created by an AR process. You may download the data from
+http://stat.ethz.ch/Teaching/Datasets/WBL/ts_S3_A2.dat
+
+a) Visualise both time series. Are both time series stationary? What is their mean?
+```{r}
+
+```
+
+b) Consider the (partial) autocorrelation function and decide whether the two time series can be generated by an AR process. If yes, what is the order of the
+respective AR process?
+Hint: The partial auto correlation function of an AR(p) process displays a sudden drop for lags larger than p.
+```{r}
+
+```
+
+
+# Exercise 4.4
+Let us consider the AR(3) model with coefficients
+α1 = 0.6, α2 = −0.5 and
+α3 = 0.4: Xt = 0.6 · Xt−1 − 0.5 · Xt−2 + 0.4 · Xt−3
+
+a) Simulate one realisation of length 50 of the time series and plot it. Would you
+assume that this time series is stationary?
+```{r}
+
+```
+
+b) Calculate the estimated (partial) autocorrelation function and compare it to the
+theoretical function. Hint: Compare exercise 3.3 for hints.
+```{r}
+
+```
+
+c) Preview to week 5: Calculate the roots of the polynomial
+Φ(z) = 1 − α1 · z − α2 · z^2 − α3 · z^3 with the R function polyroot.
+What do you observe for the absolute value of the roots?
+```{r}
+
+``` 
+
+
+
+
