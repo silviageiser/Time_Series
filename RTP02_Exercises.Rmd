@@ -1,0 +1,277 @@
+---
+title: "RTP02 Exercises"
+author: "Silvia Geiser"
+date: "23/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Series 1
+
+# Exercise 1.1
+What is the expected period (time period of repetition) and the time step for the following timeseries:
+```{r, eval=F}
+dat = floor(runif(n= 1000, min = 1, max= 2000))
+```
+
+a) Sunshine duration per month in Basel from 1990 to 2000
+```{r, eval =F}
+ts(data = dat, start=c(1990,1),end=c(2000,12), frequency = 12)
+```
+
+b) Number of newborn babies in the city of Zurich per year from 2000 to 2011
+```{r, eval =F}
+ts(data=dat, start=2000,end=2011,frequency = 1)
+```
+
+c)Number of reservations in a restaurant for every night during 4 weeks
+```{r, eval = F}
+ts(data=dat, start=1,end=4,frequency = 7)
+```
+
+d) Water runoff of a river. The data has been collected every day for 4 years
+```{r, eval = F}
+ts(data=dat, start=1,end=4,frequency = 365)
+```
+
+# Exercise 1.2
+Using the data hstart.dat, we illustrate various methods for descriptive decomposition and elimination of trends. The data contains monthly data on the start of residential construction in the USA within the time frame of January 1966 to December 1974. The data have undergone some transformation unknown to us (perhaps an index over some baseline value has been calculated, or perhaps the data are to be read as x · 10^? construction permits).
+
+```{r}
+hstart <- read.table('https://stat.ethz.ch/Teaching/Datasets/WBL/hstart.dat')
+head(hstart)
+```
+
+Make a time series plot. Is this a stationary time series? If not, what kind of nonstationarity is evident?
+
+```{r}
+ts.plot(hstart, lwd = 1.5, main = 'hstart - residential construction in the USA dataset')
+```
+not stationary, with periodic pattern and a small trend
+
+# Exercise 1.3
+Simulate timeseries according to the following models:
+```{r, eval =F}
+set.seed(100)
+Et <- ts(rnorm(101, 0, 1))
+Et [1] <- 0
+y1 <- 0
+
+for (i in 2:length(Et)) {
+  y1[i] <- Et[i]
+  }
+
+y1 <- y1[2:length(y1)]
+ts.y1 <- ts(y1)
+```
+
+a) Y1: Yt = Et − 0.5 · Et−1 , where Et ∼ N(0, 1) i.i.d. E0 = 0
+```{r, message=F, warning=F, error =F}
+set.seed(100)
+Et <- ts(rnorm(101,0,1))
+Et [1] <- 0
+y1 <- 0
+for (i in 2:length(Et)) {
+  y1 [i] <- Et[i] - 0.5 * Et[i-1]
+}
+
+y1 <- y1[2:length(y1)]
+ts.y1 <- ts(y1)
+
+plot(ts.y1, lwd = 1.5, main = 'Y1: Yt = Et − 0.5 · Et−1 , where Et ∼ N(0, 1) i.i.d. E0 = 0')
+```
+
+b)Y2: Yt = Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0
+```{r}
+set.seed(100)
+Et <- ts(rnorm(100,0,1))
+y2 <- 0
+for (i in 2:length(Et)) {
+  y2[i] <- y2[i-1] + Et[i]
+}
+
+ts.y2 <- ts(y2)
+
+plot(ts.y2, main = 'Y2: Yt = Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0', lwd = 1.5)
+```
+
+c) Y3: Yt = 0.5 · Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0
+```{r}
+set.seed(100)
+Et <- ts(rnorm(100,0,1))
+y3 <- 0
+for (i in 2:length(Et)) {
+  y3[i] <- 0.5 * y3[i - 1] + Et[i]
+}
+
+ts.y3 <- ts(y3)
+
+plot(ts.y3, lwd = 1.5, main= 'Y3: Yt = 0.5 · Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0')
+```
+
+d) Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y0 = 1
+```{r}
+set.seed(100)
+Et <- ts(runif(100,0.95, 1.05))
+y4 <- 1
+for (i in 2:length(Et)) {
+  y4[i] <- y4[i-1] * Et[i]
+}
+
+ts.y4 <- ts(y4)
+
+ts.plot(ts.y4, main ='Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y0 = 1', lwd = 1.5)
+```
+
+
+## Series 2
+
+# Exercise 2.1
+Remove the linear trend by applying backward differencing on timeseries created
+from the following models:
+
+
+a) Xt ∼ 0.5t + 1 + Ut, where Ut ∼ U(−1, 1)
+```{r,warning=F,error=F}
+t <- seq(1,100,length =100)
+Ut <- runif(100,-1,1)
+data <- 0.5 * t + 1 + Ut
+ts.data <- ts(data)
+
+plot(ts.data)
+
+yt <- diff(ts.data)
+
+#comparison of data length
+length(ts.data)
+length(yt)
+
+plot(yt, lwd = 1.5, main = 'Xt ∼ 0.5t + 1 + Ut, where Ut ∼ U(−1, 1)')
+```
+
+b) Xt ∼ 2t^2 + 3t − 1 + Ut, where Ut ∼ U(−200, 200)
+```{r, warning=F,error=F}
+t <- seq(1, 100, length=100)
+Ut <- runif(100, -200, 200)
+data <- 2 * t^2 + 3 * t - 1 + Ut
+ts.data <- ts(data)
+
+plot(ts.data)
+
+yt <- diff(ts.data, differences = 2)
+
+#comparison of length
+length(ts.data)
+length(yt)
+
+plot(yt, lwd = 1.5, main = 'Xt ∼ 2t^2 + 3t − 1 + Ut, where Ut ∼ U(−200, 200)')
+```
+
+
+# Exercise 2.2
+We reconsider the data set from exercise 1.2 about residential construction in the USA
+from January 1966 to December 1974.
+```{r}
+hstart <- read.table('https://stat.ethz.ch/Teaching/Datasets/WBL/hstart.dat')
+head(hstart)
+ts.hstart <- ts(hstart[,1], start = c(1966,1), frequency = 12)
+ts.hstart
+```
+
+a) Decompose the time series in trend, seasonal component and remainder using
+the non-parametric STL method, and plot the results.
+```{r}
+hstart.stl <- stl(ts.hstart, s.window = 'per')
+
+plot(hstart.stl, lwd = 1.5, col = 'red')
+```
+
+b) The special filter Yt = 1/24 (Xt−6 + 2Xt−5 + ... + 2Xt + ... + Xt+6) can be used for
+computing a trend estimate. Plot this, the STL trend and the data in a single
+plot. What are the differences between the two methods?
+```{r}
+weights <- c(1, rep(2,11), 1)/24 # total of 13 values because t-6 unti t+6
+weights
+
+hstart.filtertrend <- filter(ts.hstart, filter = weights, sides = 2)
+hstart.stl <- stl(ts.hstart, s.window = 'per')
+
+plot(ts.hstart, lwd = 2, main = 'hstart data  with trend lines (filter and stl)')
+lines(hstart.filtertrend, col = 'red', lwd = 2)
+lines(hstart.stl$time.series[,'trend'], col = 'green', lwd = 3, lty = 2)
+legend('topleft', legend = c('data', 'filter', 'stl'), lty = 1:2, col = c('black', 'red', 'green'), cex = 0.8)
+```
+
+c) Try to remove the trend and seasonal effects by computing differences. After
+removing seasonal effects, choose some linear trend elimination method and
+plot the outcome.
+```{r}
+hstart.adj.season <- diff(ts.hstart, lag = 12, differences = 1)
+plot(hstart.adj.season, lwd = 2, main = 'hstart data after removing seasonal pattern')
+```
+A trend is still visible, eliminate it with backward differencing once more to
+produce a stationary time series.
+
+```{r}
+hstart.adj.trend <- diff(hstart.adj.season, lag = 1)
+plot(hstart.adj.trend, lwd = 2, main = 'hstart dataset after eliminating season and trend effects')
+```
+
+# Exercise 2.3
+To test ideas and algorithms, R comes with built-in data sets. The data used in this
+exercise is called co2 and contains atmospheric concentrations of CO2 in parts per
+million.
+```{r}
+data(co2)
+class(co2)
+plot(co2, main = 'co2 data', lwd = 1.5)
+```
+
+Use backward differencing on the co2 data to abolish the seasonality effect. Figure
+out what value for the lag is to choose for an optimum reduction of the seasonality?
+What happens if you choose other values for the lag?
+```{r}
+co2.adj.season <- diff(co2, differences = 1, lag = 12)
+plot(co2.adj.season, lwd = 1.5, main = 'co2 dataset after eliminating seasonal pattern with diff = 1, lag =12')
+```
+```{r}
+co2.adj.bd <- diff(co2.adj.season, lag = 1, differences = 1)
+plot(co2.adj.bd, lwd = 1.5, main = 'co2 dataset after eliminating seasonal pattern with diff = 1, lag =12 and diff = 1, lag = 1')
+```
+
+# Exercise 2.4
+Once again have a look at the co2 data set. In this exercise you should
+try to decompose the series into trend, seasonality and random parts using a linear
+additive filter. For the seasonal part, the hints below should help you calculate the
+means over the same months in different years.
+
+TREND ESTIMATION - Attention: if the freqeuncy is even, we have to split take half of the
+border months if we want to end up with a symmetric window.
+```{r}
+co2.data <- co2
+weights <- c(0.5, rep(1,11), 0.5)/12
+trend <- filter(co2.data, filter = weights, sides = 2)
+plot(co2.data, lwd= 2, main = 'co2 decomposition with linear additive filter - TREND ESTIMATION')
+lines(trend, col= 'red', lwd = 2.5)
+```
+
+SEASONALITY ESTAMINATION
+```{r}
+weights <- c(0.5, rep(1,11), 0.5)/12
+trend.est <- filter(co2, filter = weights, sides = 2)
+trend.adj <- co2 - trend.est
+month <- factor(rep(1:12, 39))
+
+season.est <- tapply(trend.adj, month, mean, na.rm = T)
+plot(season.est, type = 'h', xlab = 'Month', main = 'co2 decomposition with linear additive filter - SEASON ESTIMATION', col = 'red')
+abline(h = 0)
+```
+
+For a combined solution have a look at the decomopose() function:
+```{r}
+co2.data <- co2
+co2.data.decomp <- decompose(co2.data)
+plot(co2.data.decomp, lwd = 1.5, col = 'red')
+```
