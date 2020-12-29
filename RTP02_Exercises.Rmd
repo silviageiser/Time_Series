@@ -303,74 +303,171 @@ The aim of this exercise is to compare the effect of different algorithms to dec
 a time series representation in trend, seasonality and remainder by means of their
 (partial) autocorrelation function.
 ```{r}
-
-
+data <- read.table('cbe.dat', header = T)
+head(data)
+ts.elec <- ts(data[,'elec'], start = c(1958,1), end = c(1990, 12), freq= 12)
+head(ts.elec)
 ```
 
 a) Start by considering the plot of the time series. Why is not meaningful to interpret the correlogram of this time series?
 Explain in a few sentences.
 ```{r}
-
-
+plot(ts.elec, lwd = 1.5)
 ```
+Answer: The time series displays a clear trend and a clear seasonality effect. Therefore,
+the fundamental assumption of the autocorrelation function analysis (stationarity) is violated.
+
+
+Basic Structures
+The following two structures are considered for basic decomposition models:
+Additive: Xt = Trend + Seasonal + Random
+Multiplicative: Xt = Trend * Seasonal * Random
 
 b) Decompose the time series into trend, seasonal component and remainder using
 the R function decompose(), which performs the decomposition with moving
-averages. Plot the remainder and its correlogram and interpret the plots in a few
+averages.
+```{r}
+# How to Choose Between Additive and Multiplicative Decompositions
+#The additive model is useful when the seasonal variation is relatively constant over time.
+#The multiplicative model is useful when the seasonal variation increases over time.
+
+elec.decomp <- decompose(ts.elec, type = 'multiplicative')
+plot(elec.decomp)
+```
+
+Plot the remainder (random) and its correlogram (acf) and interpret the plots in a few
 sentences.
 The function employs a filter to estimate the trend; therefore, the first and the
 last few entries of the decomposition are not defined, i.e. the have the value NA
 in R. To prevent issues of R, the parameter na.action = na.pass (asking R
 to ignore NA entries) has to be employed.
 ```{r}
-
-
+plot(elec.decomp$random, ylab = 'remainder')
+acf(elec.decomp$random, na.action = na.pass, plot= T, ylim = c(-1,1))
 ```
+Answer: The trend is removed from the time series, but we still see a periodic behaviour in the computed remainder. The period of one year equals that of the seasonal component of the original time series. These effects are also visible in the damped oscillatory behaviour of the correlogram.
 
-c) Decompose the log-transformed time series using the R function stl(). Estimate the seasonal effect once by averaging over all years (parameter s.window
-= "periodic") and once by choosing an appropriate smoothing window (parameter s.window = ...). Recall that the window length has to be odd. An
-appropriate smoothing window may be determined by the R-function monthplot().
+
+c) Decompose the log-transformed time series using the R function stl(). Estimate the seasonal effect once by averaging over all years (parameter s.window = "periodic") and once by choosing an appropriate smoothing window (parameter s.window = ...). Recall that the window length has to be odd. An appropriate smoothing window may be determined by the R-function monthplot().
 For both estimation approaches (averaging and smoothing window), plot the
 remainder and its correlogram, and comment on the plots.
 ```{r}
-
+elec.stl <- stl(log(ts.elec), s.window = 'per')
+plot(elec.stl)
+plot(elec.stl$time.series[,'remainder'], ylab = 'remainder')
+acf(elec.stl$time.series[,'remainder'], plot= T, ylim =c(-1,1))
 ```
+Answer: The result are compatible with the those of decompose(). The remainder displays still a periodic behaviour with a period of one year.
 
-d) Explain why you used the parameter type = "multiplicative" in Task
-b), and why you log-transformed the time series before performing an stl()
-decomposition in Task c).
 ```{r}
-
+a.05 <- stl(ts.elec, s.window = 5)
+monthplot(a.05)
+a.13 <- stl(ts.elec, s.window= 13)
+monthplot(a.13)
+a.16 <- stl(ts.elec, s.window = 16)
+monthplot(a.16)
+a.19 <- stl(ts.elec, s.window = 19)
+monthplot(a.19)
+a.23 <- stl(ts.elec, s.window = 23)
+monthplot(a.23)
 ```
-
-e) As a last algorithm consider the differencing approach. Choose a lag of 1 and 12
-(months) to eliminate a trend and periodic structures. Plot the resulting time series and autocorrelation function. Compare the results to the previous methods.
+Using a smoothing window of 19 (the size is chosen based on the monthplot; other values of similar magnitude yield comparable results), we find the following picture:
 ```{r}
-
-
+elec.stl.w19 <- stl(log(ts.elec), s.window = 19)
+plot(elec.stl.w19)
+plot(elec.stl.w19$time.series[,'remainder'], ylab= 'remainder')
+acf(elec.stl.w19$time.series, plot = T, ylim = c(-1,1))
+acf(elec.stl.w19$time.series[,'remainder'], plot = T, ylim = c(-1,1))
 ```
+Findings: Now, the periodicity is removed much better from the time series. The autocorrelation function of the remainder at lag 1 is not significant any more.
+The difference between the averaging and the smoothing window approach goes along with different concepts behind the two methods.
+In the averaging approach, we model the seasonal component as truly periodic and explain the slight deviations from this fitted component as a stationary random process, which in our case has the same periodicity as the underlying seasonal effect.
+
+In the smoothing window approach, we allow the seasonal component to vary (slightly) over time, which enables to eliminate the effects with the frequency of the seasonal 4 component in the remainder. On the other hand, this approach is more prone to overfitting, since the slight deviations from a truly periodic behaviour in the seasonal component are interpreted as deterministic".
+
+
+
+
+d) Explain why you used the parameter type = "multiplicative" in Task b), and why you log-transformed the time series before performing an stl()decomposition in Task c).
+
+The seasonal oscillations of the time series (see plot in Task a)) are approximately proportional to the trend. Therefore, a multiplicative model is appropriate
+for describing the time series:
+Xt = mt * St * Rt
+A log-transformation transforms a multiplicative into an additive model:
+log(Xt) = log(mt) + log(St) + log(Rt)
+
+The R function decompose() can handle multiplicative models directly, whereas stl() requires the reduction to an additive model
+
+
+e) As a last algorithm consider the differencing approach. Choose a lag of 1 and 12(months) to eliminate trend and periodic structures. 
+```{r}
+elec.diff12 <- diff(ts.elec, lag = 12)
+elec.diff12.1 <- diff(elec.diff12, lag = 1)
+```
+
+Plot the resulting time series and autocorrelation function. Compare the results to the previous methods.
+```{r}
+plot(elec.diff12.1)
+acf(elec.diff12.1, ylim = c(-1,1))
+```
+Findings: The acf looks quite different. We have strong negative autocorrelation at lag 1 and 12. Therefore, the model is probably not linear. This method is not appropriate here.
 
 
 # Exercise 3.3
-In this exercise, we will calculate the lagged scatter plot and the plug-in
-estimator without employing the internal R function.
+In this exercise, we will calculate the lagged scatter plot and the plug-in estimator without employing the internal R function.
 
 a) Write a function to calculate the lagged scatter plot estimator for the autocorrelation. For this, you may extend the code given in the lecture notes.
 ```{r}
-
+lagged <- function(data) {
+n <- length(data)
+lagCorrel <- rep(0, n)
+for (i in 0:(n - 1)) {
+lagCorrel[i + 1] = cor(data[1:(n - i)], data[(i +
+1):n])
+}
+# return value
+lagCorrel
+}
 ```
 
 b) Develop a function to calculate the plug-in estimator for the autocorrelation.
+For the implementation of the plug-in estimator we calculate the individual defining γ(k) factors first and then assign the fraction of γ(k)/γ(0) to the estimator ρˆ(k):
 ```{r}
-
+plugIn <- function(data) {
+n <- length(data)
+meanData <- mean(data)
+deltaX <- data - meanData
+gamma0 = sum(deltaX * deltaX)/n
+plugIn <- rep(0, n)
+for (i in 0:(n - 1)) {
+gammaK = sum(deltaX[(i + 1):n] * deltaX[1:(n -
+i)])/n
+plugIn[i + 1] <- gammaK/gamma0
+}
+plugIn
+}
 ```
 
 c) Calculate the two estimates for the beer and the chicken dataset. The beer
 and the chicken dataset is contained in the "fma"package. In case it is not already loaded, one can load it with the command library(fma).
-```{r}
+```{r, message = F, error= F}
+library(fma)
 
-
+lagChicken <- lagged(beer)
+plugChicken <- plugIn(beer)
+plot(lagChicken, type = "l", ylab = "ACF Estimator")
+lines(plugChicken, col = "red")
 ```
+
+```{r}
+lagChicken <- lagged(chicken)
+plugChicken <- plugIn(chicken)
+plot(lagChicken, type = "l", ylab = "ACF Estimator")
+lines(plugChicken, col = "red")
+```
+The beer data sets displays a high agreement between the two calculation methods, whereas the chicken data sets displays a strong disagreement between the two data sets.
+
+
 
 
 ## Series 4
