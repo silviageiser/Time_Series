@@ -2,16 +2,27 @@
 title: "RTP02 Exercises"
 author: "Silvia Geiser"
 date: "23/12/2020"
-output: html_document
+output:
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Series 1
+# Series 1
 
-# Exercise 1.1
+## Exercise 1.1
 What is the expected period (time period of repetition) and the time step for the following timeseries:
 ```{r, eval=F}
 dat = floor(runif(n= 1000, min = 1, max= 2000))
@@ -37,7 +48,7 @@ d) Water runoff of a river. The data has been collected every day for 4 years
 ts(data=dat, start=1,end=4,frequency = 365)
 ```
 
-# Exercise 1.2
+## Exercise 1.2
 Using the data hstart.dat, we illustrate various methods for descriptive decomposition and elimination of trends. The data contains monthly data on the start of residential construction in the USA within the time frame of January 1966 to December 1974. The data have undergone some transformation unknown to us (perhaps an index over some baseline value has been calculated, or perhaps the data are to be read as x · 10^? construction permits).
 
 ```{r}
@@ -52,7 +63,7 @@ ts.plot(hstart, lwd = 1.5, main = 'hstart - residential construction in the USA 
 ```
 not stationary, with periodic pattern and a small trend
 
-# Exercise 1.3
+## Exercise 1.3
 Simulate timeseries according to the following models:
 ```{r, eval =F}
 set.seed(100)
@@ -126,10 +137,89 @@ ts.y4 <- ts(y4)
 ts.plot(ts.y4, main ='Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y0 = 1', lwd = 1.5)
 ```
 
+## ETH Exercises
 
-## Series 2
+### 1.3 
+Have a look at the following set of time series. For every series, shortly answer the following questions
+(motivate your answers):
+• Is the time series stationary?
+• Is there a trend?
+• Can one find some seasonal effect? If yes, what is the period?
+• Which transformation should be applied (if required)?
 
-# Exercise 2.1
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Ex1.3a.PNG")
+```
+
+Answer: 
+- non stationary
+- non linear trend, mostly increasing 
+- no seasonal component
+- log transformation:  diff()
+
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Ex1.3b.PNG")
+```
+
+Answer: 
+- seems stationary
+- trend from before was removed by diff(difference = 1)
+- constant variance achieved by taking the logarithm. However Log-Returns are NOT stationary, because of volatility clusters
+
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Ex1.3c.PNG")
+```
+
+Answer:
+- non stationary
+- exponential increasing trend
+- seasonal component with period 1 year
+- log transformation with diff() to get additive components
+
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Ex1.3d.PNG")
+```
+
+Answer:
+- non stationary
+- increasing trend
+- seasonal component with period 1 year and increasing variance
+- log transformation with diff()
+
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Ex1.3e.PNG")
+```
+
+Answer:
+- non stationary
+- no visible trend
+- seasonal effect with period 1 year
+
+Yeary numbers of sunspots:
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Ex1.3f.PNG")
+```
+
+Answer:
+- likely to be stationary
+- no trend
+- no seasonal effect
+- periodicity with period of 11 years
+- variance maybe different over time
+- log transformation required due to right skewnes
+
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Ex1.3g.PNG")
+```
+
+Answer:
+- probably stationary
+- no clear trend visible
+- no seasonal effect visible
+
+# Series 2
+
+## Exercise 2.1
 Remove the linear trend by applying backward differencing on timeseries created
 from the following models:
 
@@ -170,7 +260,7 @@ plot(yt, lwd = 1.5, main = 'Xt ∼ 2t^2 + 3t − 1 + Ut, where Ut ∼ U(−200, 
 ```
 
 
-# Exercise 2.2
+## Exercise 2.2
 We reconsider the data set from exercise 1.2 about residential construction in the USA
 from January 1966 to December 1974.
 ```{r}
@@ -220,7 +310,7 @@ plot(hstart.adj.trend, lwd = 2, main = 'hstart dataset after eliminating season 
 ```
 
 
-# Exercise 2.3
+## Exercise 2.3
 To test ideas and algorithms, R comes with built-in data sets. The data used in this
 exercise is called co2 and contains atmospheric concentrations of CO2 in parts per
 million.
@@ -243,7 +333,7 @@ plot(co2.adj.bd, lwd = 1.5, main = 'co2 dataset after eliminating seasonal patte
 ```
 
 
-# Exercise 2.4
+## Exercise 2.4
 Once again have a look at the co2 data set. In this exercise you should
 try to decompose the series into trend, seasonality and random parts using a linear
 additive filter. For the seasonal part, the hints below should help you calculate the
@@ -279,12 +369,12 @@ plot(co2.data.decomp, lwd = 1.5, col = 'red')
 ```
 
 
-## Series 3
+# Series 3
 
-# Exercise 3.1
+## Exercise 3.1
 Below you find the plots and the correlograms of four datasets. The correlograms have been permutated. Please find for each data sets (A-D) the appropriate corellogram
 (1 - 4).
-```{r pressure, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
 knitr::include_graphics("Exercise_3.1.JPG")
 ```
 Solution:
@@ -294,7 +384,7 @@ C - 1
 D - 4
 
 
-# Exercise 3.2
+## Exercise 3.2
 Let us now consider the electricity production of Australia in GWh in the period from
 January 1958 to December 1990. You may download the data from
 http://stat.ethz.ch/Teaching/Datasets/WBL/cbe.dat.
@@ -413,7 +503,7 @@ acf(elec.diff12.1, ylim = c(-1,1))
 Findings: The acf looks quite different. We have strong negative autocorrelation at lag 1 and 12. Therefore, the model is probably not linear. This method is not appropriate here.
 
 
-# Exercise 3.3
+## Exercise 3.3
 In this exercise, we will calculate the lagged scatter plot and the plug-in estimator without employing the internal R function.
 
 a) Write a function to calculate the lagged scatter plot estimator for the autocorrelation. For this, you may extend the code given in the lecture notes.
@@ -470,9 +560,9 @@ The beer data sets displays a high agreement between the two calculation methods
 
 
 
-## Series 4
+# Series 4
 
-# Exercise 4.1
+## Exercise 4.1
 In this exercise, we would like to investigate the properties of an AR(1) process.
 
 a) Simulate a realisation of the process
