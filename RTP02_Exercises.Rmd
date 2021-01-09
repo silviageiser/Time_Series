@@ -48,22 +48,8 @@ d) Water runoff of a river. The data has been collected every day for 4 years
 ts(data=dat, start=1,end=4,frequency = 365)
 ```
 
+
 ## Exercise 1.2
-Using the data hstart.dat, we illustrate various methods for descriptive decomposition and elimination of trends. The data contains monthly data on the start of residential construction in the USA within the time frame of January 1966 to December 1974. The data have undergone some transformation unknown to us (perhaps an index over some baseline value has been calculated, or perhaps the data are to be read as x · 10^? construction permits).
-
-```{r}
-hstart <- read.table('https://stat.ethz.ch/Teaching/Datasets/WBL/hstart.dat')
-head(hstart)
-```
-
-Make a time series plot. Is this a stationary time series? If not, what kind of nonstationarity is evident?
-
-```{r}
-ts.plot(hstart, lwd = 1.5, main = 'hstart - residential construction in the USA dataset')
-```
-not stationary, with periodic pattern and a small trend
-
-## Exercise 1.3
 Simulate timeseries according to the following models:
 ```{r, eval =F}
 set.seed(100)
@@ -137,17 +123,16 @@ ts.y4 <- ts(y4)
 ts.plot(ts.y4, main ='Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y0 = 1', lwd = 1.5)
 ```
 
-## ETH Exercises
 
-### 1.3 
+## Exercise 1.3
+
 Have a look at the following set of time series. For every series, shortly answer the following questions
 (motivate your answers):
 • Is the time series stationary?
 • Is there a trend?
 • Can one find some seasonal effect? If yes, what is the period?
 • Which transformation should be applied (if required)?
-
-```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("Ex1.3a.PNG")
 ```
 
@@ -155,9 +140,9 @@ Answer:
 - non stationary
 - non linear trend, mostly increasing 
 - no seasonal component
-- log transformation:  diff()
+- log transformation
 
-```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("Ex1.3b.PNG")
 ```
 
@@ -166,7 +151,7 @@ Answer:
 - trend from before was removed by diff(difference = 1)
 - constant variance achieved by taking the logarithm. However Log-Returns are NOT stationary, because of volatility clusters
 
-```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+```{r, echo=FALSE,  out.width = '100%'}
 knitr::include_graphics("Ex1.3c.PNG")
 ```
 
@@ -174,9 +159,9 @@ Answer:
 - non stationary
 - exponential increasing trend
 - seasonal component with period 1 year
-- log transformation with diff() to get additive components
+- increasing variance, log transformation benefitial to get additive components
 
-```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("Ex1.3d.PNG")
 ```
 
@@ -184,9 +169,9 @@ Answer:
 - non stationary
 - increasing trend
 - seasonal component with period 1 year and increasing variance
-- log transformation with diff()
+- increasing variance, log transformation benefitial to get additibe components
 
-```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+```{r, echo=FALSE,  out.width = '100%'}
 knitr::include_graphics("Ex1.3e.PNG")
 ```
 
@@ -196,7 +181,7 @@ Answer:
 - seasonal effect with period 1 year
 
 Yeary numbers of sunspots:
-```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("Ex1.3f.PNG")
 ```
 
@@ -206,9 +191,18 @@ Answer:
 - no seasonal effect
 - periodicity with period of 11 years
 - variance maybe different over time
-- log transformation required due to right skewnes
+- log transformation required due to right skewness
 
-```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+**Skewness**
+
+The direction of the skew is dependent on whether the bulk of the material is above the mean line (negative skew) or below the mean line (positive skew).
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("skewness.png")
+```
+
+
+
+```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("Ex1.3g.PNG")
 ```
 
@@ -216,12 +210,171 @@ Answer:
 - probably stationary
 - no clear trend visible
 - no seasonal effect visible
+- no transformation required
+
+
+## Exercise 1.4
+
+Using the data hstart.dat, we illustrate various methods for descriptive decomposition and elimination of trends. The data contains monthly data on the start of residential construction in the USA within the time frame of January 1966 to December 1974. The data have undergone some transformation unknown to us (perhaps an index over some baseline value has been calculated, or perhaps the data are to be read as x · 10^? construction permits).
+
+```{r}
+hstart <- read.table('https://stat.ethz.ch/Teaching/Datasets/WBL/hstart.dat')
+hstart.ts <- ts(hstart[,1], start = c(1966,1), end = c(1974,12), frequency = 12)
+```
+
+Make a time series plot. Is this a stationary time series? If not, what kind of nonstationarity is evident?
+```{r}
+plot(hstart.ts, lwd = 2, main = 'Residential construction in the USA')
+```
+
+- not stationary
+- trend
+- seasonal component
+- decomposition possible into trend, seasonal effect and remainder: 
+```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+knitr::include_graphics("Ex1.2a.PNG")
+```
+
+**Log Transformation**
+
+If the data show variation that increases or decreases with the level of the series, then a transformation can be useful. Logarithms can help to stabilise the variance of a time series.
+For example, if we denote the original observations as y1,…,yT and the transformed observations as w1,…,wT, then wt=log(yt).
+Logarithms are interpretable: changes in a log value are relative (or percentage) changes on the original scale. So if log base 10 is used, then an increase of 1 on the log scale corresponds to a multiplication of 10 on the original scale. Another useful feature of log transformations is that they constrain the forecasts to stay positive on the original scale.
+
+Example (log is the logarithm to the base 10), i.e. 
+log(1) =  0
+log(10) = 1
+log(100) =2 
+log(1000)=3
+and so forth. 
+
+This means that the logarithm squezes all values between 1 and 10 to the range between 0 and 1, all values between 10 and 100 to the range between 1 and 2, and all values between 100 and 1000 to the range between 2 and 3. In conclusion, the higher the values get, the more the logarithm squeezes them together.
+
+
+**Differencing**
+
+Computing the differences between consecutive observations, is known as differencing.
+
+Differencing can help stabilise the mean of a time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.
+
+b) Differences
+Try to remove the trend and seasonal effects by computing differences. After removing seasonal
+effects, choose some linear trend elimination method from the course notes and plot the outcome.
+
+**R hint:**
+H.y <- diff(hstart, lag=12) # time series differences Yt = Xt − Xt−k, lag = k
+H.z <- diff(H.y, lag=...)
+par(mfrow=c(2,1))
+plot(H.y)
+plot(H.z)
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("diff.PNG")
+```
+
+- Remove seasonal effects by differencing with lag = 12
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("Ex1.2b1.PNG")
+```
+
+```{r}
+hstart.season.diff <- diff(hstart.ts, lag = 12)
+```
+
+```{r, echo =F}
+plot(hstart.season.diff, main = "Time series plot after removing the seasonal effect", lwd = 2)
+```
+```{r}
+hstart.trend.diff <- diff(hstart.season.diff, differences = 1)
+```
+
+```{r}
+plot(hstart.trend.diff, main = "Time series plot after removing the seasonal effect and the trend", lwd = 2)
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("Ex1.2b2.PNG")
+```
+
+
+**Random Walk**
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("random_walk.png")
+```
+
+**Second-order differencing**
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("diff_2.png")
+```
+
+**Seasonal differencing**
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("deason_diff.png")
+```
+
+
+**Decomposition**
+The additive decomposition is the most appropriate if the magnitude of the seasonal fluctuations, or the variation around the trend-cycle, does not vary with the level of the time series.
+
+When the variation in the seasonal pattern, or the variation around the trend-cycle, appears to be proportional to the level of the time series, then a multiplicative decomposition is more appropriate. Multiplicative decompositions are common with economic time series.
+
+An alternative to using a multiplicative decomposition is to first transform the data until the variation in the series appears to be stable over time, then use an additive decomposition. When a log transformation has been used, this is equivalent to using a multiplicative decomposition because:
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("components.png")
+```
+
+
+
+c)  STL decomposition
+Decompose the time series in trend, seasonal component and remainder using the non-parametric STL method, and add data from this decomposition to the plot from part a).
+
+**R hint:**
+The decomposition is made using **H.stl <- stl(hstart, s.window="periodic")**
+
+Note: The smoothing parameter for the seasonal effect is chosen by means of s.window. If s.window="periodic", the seasonal effect is estimated by averaging. It is also possible to specify a value for the smoothing parameter (an odd number). Try e.g. H.stl.var <- stl(hstart, s.window = 15), and compare the result of this to H.stl. Incidentally, summary() can be used for displaying the values of window.
+
+The trend estimation parameter can be set using t.window. Unlike s.window, this argument does have a default value (cf. the help file). Perhaps you could try to vary this parameter as well.
+The documentation for R and the help files give more details.
+Trend, seasonal component and remainder of the STL are stored in
+H.st$time.series[,"trend"]
+H.st$time.series[,"seasonal"]
+H.st$time.series[,"remainder"]
+```{r}
+hstart.stl <- stl(hstart.ts, s.window = 'periodic')
+summary(hstart.stl)
+str(hstart.stl)
+```
+```{r}
+plot(hstart.stl, main = "STL with s.window= 'periodic'", lwd = 2)
+```
+
+```{r}
+hstart.stl.var <- stl(hstart.ts, s.window = 15)
+summary(hstart.stl.var)
+str(hstart.stl.var)
+```
+
+```{r}
+plot(hstart.stl.var, main = 'STL with s.window = 15', lwd = 2)
+```
+
+Plot the remainder from the STL-Decomposition vs. time.
+```{r}
+
+```
+
+Answer:
+The non-parametric model STL fits the data better than the parametric one does.
+
+In the residual time series plot is shown below. No systematic behavior is visible and hence it
+could be concluded that the combination of the estimated trend and the seasonal effect fits the
+data resonably well.
+
 
 # Series 2
 
 ## Exercise 2.1
-Remove the linear trend by applying backward differencing on timeseries created
-from the following models:
+Remove the linear trend by applying backward differencing on timeseries created from the following models:
 
 a) Xt ∼ 0.5t + 1 + Ut, where Ut ∼ U(−1, 1)
 ```{r,warning=F,error=F}
@@ -279,31 +432,30 @@ plot(hstart.stl, lwd = 1.5, col = 'red')
 ```
 
 b) The special filter Yt = 1/24 (Xt−6 + 2Xt−5 + ... + 2Xt + ... + Xt+6) can be used for
-computing a trend estimate. Plot this, the STL trend and the data in a single
-plot. What are the differences between the two methods?
+computing a trend estimate. 
 ```{r}
 weights <- c(1, rep(2,11), 1)/24 # total of 13 values because t-6 unti t+6
 weights
 
 hstart.filtertrend <- filter(ts.hstart, filter = weights, sides = 2)
 hstart.stl <- stl(ts.hstart, s.window = 'per')
+```
 
+Plot this, the STL trend and the data in a single plot. What are the differences between the two methods?
+```{r}
 plot(ts.hstart, lwd = 2, main = 'hstart data  with trend lines (filter and stl)')
 lines(hstart.filtertrend, col = 'red', lwd = 2)
 lines(hstart.stl$time.series[,'trend'], col = 'green', lwd = 3, lty = 2)
 legend('topleft', legend = c('data', 'filter', 'stl'), lty = 1:2, col = c('black', 'red', 'green'), cex = 0.8)
 ```
 
-c) Try to remove the trend and seasonal effects by computing differences. After
-removing seasonal effects, choose some linear trend elimination method and
-plot the outcome.
+c) Try to remove the trend and seasonal effects by computing differences. After removing seasonal effects, choose some linear trend elimination method and plot the outcome.
 ```{r}
 hstart.adj.season <- diff(ts.hstart, lag = 12, differences = 1)
 plot(hstart.adj.season, lwd = 2, main = 'hstart data after removing seasonal pattern')
 ```
-A trend is still visible, eliminate it with backward differencing once more to
-produce a stationary time series.
 
+A trend is still visible, eliminate it with backward differencing once more to produce a stationary time series.
 ```{r}
 hstart.adj.trend <- diff(hstart.adj.season, lag = 1)
 plot(hstart.adj.trend, lwd = 2, main = 'hstart dataset after eliminating season and trend effects')
@@ -334,13 +486,9 @@ plot(co2.adj.bd, lwd = 1.5, main = 'co2 dataset after eliminating seasonal patte
 
 
 ## Exercise 2.4
-Once again have a look at the co2 data set. In this exercise you should
-try to decompose the series into trend, seasonality and random parts using a linear
-additive filter. For the seasonal part, the hints below should help you calculate the
-means over the same months in different years.
+Once again have a look at the co2 data set. In this exercise you should try to decompose the series into trend, seasonality and random parts using a linear additive filter. For the seasonal part, the hints below should help you calculate the means over the same months in different years.
 
-TREND ESTIMATION - Attention: if the freqeuncy is even, we have to split take half of the
-border months if we want to end up with a symmetric window.
+TREND ESTIMATION - Attention: if the freqeuncy is even, we have to split take half of the border months if we want to end up with a symmetric window.
 ```{r}
 co2.data <- co2
 weights <- c(0.5, rep(1,11), 0.5)/12
@@ -404,7 +552,9 @@ Explain in a few sentences.
 ```{r}
 plot(ts.elec, lwd = 1.5)
 ```
-Answer: The time series displays a clear trend and a clear seasonality effect. Therefore,
+
+Answer:
+The time series displays a clear trend and a clear seasonality effect. Therefore,
 the fundamental assumption of the autocorrelation function analysis (stationarity) is violated.
 
 
@@ -413,29 +563,28 @@ The following two structures are considered for basic decomposition models:
 Additive: Xt = Trend + Seasonal + Random
 Multiplicative: Xt = Trend * Seasonal * Random
 
+**How to Choose Between Additive and Multiplicative Decompositions**
+- The additive model is useful when the seasonal variation is relatively constant over time.
+- The multiplicative model is useful when the seasonal variation increases over time.
+
 b) Decompose the time series into trend, seasonal component and remainder using
 the R function decompose(), which performs the decomposition with moving
 averages.
 ```{r}
-# How to Choose Between Additive and Multiplicative Decompositions
-#The additive model is useful when the seasonal variation is relatively constant over time.
-#The multiplicative model is useful when the seasonal variation increases over time.
-
 elec.decomp <- decompose(ts.elec, type = 'multiplicative')
 plot(elec.decomp)
 ```
 
-Plot the remainder (random) and its correlogram (acf) and interpret the plots in a few
-sentences.
-The function employs a filter to estimate the trend; therefore, the first and the
-last few entries of the decomposition are not defined, i.e. the have the value NA
-in R. To prevent issues of R, the parameter na.action = na.pass (asking R
-to ignore NA entries) has to be employed.
+Plot the remainder (random) and its correlogram (acf) and interpret the plots in a few sentences.
+The function employs a filter to estimate the trend; therefore, the first and the last few entries of the decomposition are not defined, i.e. the have the value NA in R. To prevent issues of R,
+the parameter na.action=na.pass (asking R to ignore NA entries) has to be employed.
 ```{r}
 plot(elec.decomp$random, ylab = 'remainder')
 acf(elec.decomp$random, na.action = na.pass, plot= T, ylim = c(-1,1))
 ```
-Answer: The trend is removed from the time series, but we still see a periodic behaviour in the computed remainder. The period of one year equals that of the seasonal component of the original time series. These effects are also visible in the damped oscillatory behaviour of the correlogram.
+
+Answer:
+The trend is removed from the time series, but we still see a periodic behaviour in the computed remainder. The period of one year equals that of the seasonal component of the original time series. These effects are also visible in the damped oscillatory behaviour of the correlogram.
 
 
 c) Decompose the log-transformed time series using the R function stl(). Estimate the seasonal effect once by averaging over all years (parameter s.window = "periodic") and once by choosing an appropriate smoothing window (parameter s.window = ...). Recall that the window length has to be odd. An appropriate smoothing window may be determined by the R-function monthplot().
@@ -447,7 +596,9 @@ plot(elec.stl)
 plot(elec.stl$time.series[,'remainder'], ylab = 'remainder')
 acf(elec.stl$time.series[,'remainder'], plot= T, ylim =c(-1,1))
 ```
-Answer: The result are compatible with the those of decompose(). The remainder displays still a periodic behaviour with a period of one year.
+
+Answer:
+The result are compatible with the those of decompose(). The remainder displays still a periodic behaviour with a period of one year.
 
 ```{r}
 a.05 <- stl(ts.elec, s.window = 5)
@@ -461,6 +612,7 @@ monthplot(a.19)
 a.23 <- stl(ts.elec, s.window = 23)
 monthplot(a.23)
 ```
+
 Using a smoothing window of 19 (the size is chosen based on the monthplot; other values of similar magnitude yield comparable results), we find the following picture:
 ```{r}
 elec.stl.w19 <- stl(log(ts.elec), s.window = 19)
@@ -469,7 +621,9 @@ plot(elec.stl.w19$time.series[,'remainder'], ylab= 'remainder')
 acf(elec.stl.w19$time.series, plot = T, ylim = c(-1,1))
 acf(elec.stl.w19$time.series[,'remainder'], plot = T, ylim = c(-1,1))
 ```
-Findings: Now, the periodicity is removed much better from the time series. The autocorrelation function of the remainder at lag 1 is not significant any more.
+
+Findings:
+Now, the periodicity is removed much better from the time series. The autocorrelation function of the remainder at lag 1 is not significant any more.
 The difference between the averaging and the smoothing window approach goes along with different concepts behind the two methods.
 In the averaging approach, we model the seasonal component as truly periodic and explain the slight deviations from this fitted component as a stationary random process, which in our case has the same periodicity as the underlying seasonal effect.
 
