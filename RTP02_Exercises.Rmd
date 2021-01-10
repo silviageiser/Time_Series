@@ -3,14 +3,14 @@ title: "RTP02 Exercises"
 author: "Silvia Geiser"
 date: "23/12/2020"
 output:
-  word_document:
-    toc: yes
-    toc_depth: '2'
   html_document:
     number_sections: yes
     toc: yes
     toc_depth: 2
     toc_float: yes
+  word_document:
+    toc: yes
+    toc_depth: '2'
   pdf_document:
     toc: yes
     toc_depth: '2'
@@ -20,9 +20,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Series 1
+# Introduction
 
-## Exercise 1.1
+## Create Time Series
 What is the expected period (time period of repetition) and the time step for the following timeseries:
 ```{r, eval=F}
 dat = floor(runif(n= 1000, min = 1, max= 2000))
@@ -49,7 +49,13 @@ ts(data=dat, start=1,end=4,frequency = 365)
 ```
 
 
-## Exercise 1.2
+## Simulate Time Series
+
+```{r}
+zeitsim <- read.table('https://stat.ethz.ch/Teaching/Datasets/WBL/zeitsim.dat')
+zeitsim.ts <- ts(zeitsim[,1:4], start = 1, frequency = 1)
+```
+
 Simulate timeseries according to the following models:
 ```{r, eval =F}
 set.seed(100)
@@ -65,7 +71,8 @@ y1 <- y1[2:length(y1)]
 ts.y1 <- ts(y1)
 ```
 
-a) Y1: Yt = Et − 0.5 · Et−1 , where Et ∼ N(0, 1) i.i.d. E0 = 0
+**a) Y1: Yt = Et − 0.5 · Et−1 , where Et ∼ N(0, 1) i.i.d. E0 = 0**
+
 ```{r, message=F, warning=F, error =F}
 set.seed(100)
 Et <- ts(rnorm(101,0,1))
@@ -78,10 +85,18 @@ for (i in 2:length(Et)) {
 y1 <- y1[2:length(y1)]
 ts.y1 <- ts(y1)
 
+par(mfrow= c(1,2))
 plot(ts.y1, lwd = 1.5, main = 'Y1: Yt = Et − 0.5 · Et−1 , where Et ∼ N(0, 1) i.i.d. E0 = 0')
+plot(zeitsim.ts[,1], main = 'Zeitsim Y1', lwd = 1.5)
 ```
 
-b)Y2: Yt = Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0
+Answer: 
+- stationary time series
+- MA(1) process
+
+
+**b)Y2: Yt = Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0**
+
 ```{r}
 set.seed(100)
 Et <- ts(rnorm(100,0,1))
@@ -92,10 +107,18 @@ for (i in 2:length(Et)) {
 
 ts.y2 <- ts(y2)
 
+par(mfrow = c(1,2))
 plot(ts.y2, main = 'Y2: Yt = Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0', lwd = 1.5)
+plot(zeitsim.ts[,2], main = 'Zeitsim Y2', lwd = 1.5)
 ```
 
-c) Y3: Yt = 0.5 · Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0
+Answer:
+- non stationary time series
+- Yt-1 and Et are uncorrelated random variables
+
+
+**c) Y3: Yt = 0.5 · Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0**
+
 ```{r}
 set.seed(100)
 Et <- ts(rnorm(100,0,1))
@@ -106,10 +129,17 @@ for (i in 2:length(Et)) {
 
 ts.y3 <- ts(y3)
 
+par(mfrow = c(1,2))
 plot(ts.y3, lwd = 1.5, main= 'Y3: Yt = 0.5 · Yt−1 + Et, where Et ∼ N(0, 1) i.i.d. Y0 = 0')
+plot(zeitsim.ts[,3], main = 'Zeitsim Y3', lwd = 1.5)
 ```
 
-d) Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y0 = 1
+Answer:
+- stationary time series
+- AR(1) process
+
+**d) Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y0 = 1**
+
 ```{r}
 set.seed(100)
 Et <- ts(runif(100,0.95, 1.05))
@@ -120,11 +150,15 @@ for (i in 2:length(Et)) {
 
 ts.y4 <- ts(y4)
 
+par(mfrow= c(1,2))
 ts.plot(ts.y4, main ='Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y0 = 1', lwd = 1.5)
+plot(zeitsim.ts[,4], main = 'Zeitsim Y4', lwd = 1.5)
 ```
 
+Answer:
+- non stationary time series, as Var(Yt) is NOT constant
 
-## Exercise 1.3
+## Identify characteristics of Time Series
 
 Have a look at the following set of time series. For every series, shortly answer the following questions
 (motivate your answers):
@@ -132,7 +166,7 @@ Have a look at the following set of time series. For every series, shortly answe
 • Is there a trend?
 • Can one find some seasonal effect? If yes, what is the period?
 • Which transformation should be applied (if required)?
-```{r, echo=FALSE, out.width = '100%'}
+```{r, echo=FALSE,out.width = '100%'}
 knitr::include_graphics("Ex1.3a.PNG")
 ```
 
@@ -142,7 +176,7 @@ Answer:
 - no seasonal component
 - log transformation
 
-```{r, echo=FALSE, out.width = '100%'}
+```{r, echo=FALSE,out.width = '100%'}
 knitr::include_graphics("Ex1.3b.PNG")
 ```
 
@@ -193,10 +227,10 @@ Answer:
 - variance maybe different over time
 - log transformation required due to right skewness
 
-**Skewness**
+## Skewness
 
 The direction of the skew is dependent on whether the bulk of the material is above the mean line (negative skew) or below the mean line (positive skew).
-```{r, echo=FALSE, out.width = '100%'}
+```{r, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("skewness.png")
 ```
 
@@ -213,7 +247,138 @@ Answer:
 - no transformation required
 
 
-## Exercise 1.4
+## Log Transformation
+
+If the data show variation that increases or decreases with the level of the series, then a transformation can be useful. Logarithms can help to stabilise the variance of a time series.
+For example, if we denote the original observations as y1,…,yT and the transformed observations as w1,…,wT, then wt=log(yt).
+Logarithms are interpretable: changes in a log value are relative (or percentage) changes on the original scale. So if log base 10 is used, then an increase of 1 on the log scale corresponds to a multiplication of 10 on the original scale. Another useful feature of log transformations is that they constrain the forecasts to stay positive on the original scale.
+
+Example (log is the logarithm to the base 10), i.e. 
+log(1) =  0
+log(10) = 1
+log(100) =2 
+log(1000)=3
+and so forth. 
+
+This means that the logarithm squezes all values between 1 and 10 to the range between 0 and 1, all values between 10 and 100 to the range between 1 and 2, and all values between 100 and 1000 to the range between 2 and 3. In conclusion, the higher the values get, the more the logarithm squeezes them together.
+
+
+## Differencing
+
+Computing the differences between consecutive observations, is known as differencing.
+
+Differencing can help stabilise the mean of a time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.
+
+Summary:
++ trend and seasonal effect can be removed
++ procedure is very quick and very simple to implement
+
+- trend, season and remainder component are NOT known, and cannot be visualised
+- resulting time series will be shorter than original data set
+- differencing creates artificial new dependencies that are different from the original ones
+- extrapolation of trend, season and remainder is not easily possible
+
+### Backshift operator
+
+```{r, echo=F}
+knitr::include_graphics('backshift.png')
+```
+
+### Remove linear Trend of a non-stationary time series by taking differences of first order at lag 1: diff(x, differences = 1)
+
+```{r, echo=F, out.width='50%'}
+knitr::include_graphics('diff_trend.png')
+```
+
+The new time series Yt is going to be stationary, but has new, strong and artificial dependencies
+
+- Yt now are the observation to observation changes in the series, NOT longer the observations or remainder itself
+- does not yield estimates for trend, season and remainder component
+
+### Differencing for log-transformed series: diff(log(x), differences = 1, lag = 1)
+
+```{r, echo = F, out.width='50%'}
+knitr::include_graphics('diff_log.png')
+```
+
+
+### Remove polynomial Trend: diff(x, differences = 2 or more)
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('diff_higher.png')
+```
+
+This will remove a polynomial trend. A quadratic trend can be removed by taking second-order differences (differences = 2). 
+
+
+Time series with seasonal effects can be made stationary through differencing by comparing to the previous periods’ value.
+
+### Remove Seasonality: diff(x, lag = p)
+
+```{r, echo=F, out.width='50%'}
+knitr::include_graphics('diff_season.png')
+```
+
+
+To remove Trend and Seasonality take first order differences at the lag = p of the period, which removes both trend and season effects: diff(x, differences = 1, lag = 12) example: p = 12
+
+
+## Random Walk
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("random_walk.png")
+```
+
+## Second-order differencing
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("diff_2.png")
+```
+
+## Seasonal differencing
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("deason_diff.png")
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("drug.png")
+```
+
+
+## Decomposition
+The additive decomposition is the most appropriate if the magnitude of the seasonal fluctuations, or the variation around the trend-cycle, does not vary with the level of the time series.
+
+When the variation in the seasonal pattern, or the variation around the trend-cycle, appears to be proportional to the level of the time series, then a multiplicative decomposition is more appropriate. Multiplicative decompositions are common with economic time series.
+
+An alternative to using a multiplicative decomposition is to first transform the data until the variation in the series appears to be stable over time, then use an additive decomposition. When a log transformation has been used, this is equivalent to using a multiplicative decomposition because:
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("components.png")
+```
+
+
+Basic Structures
+The following two structures are considered for basic decomposition models:
+Additive: Xt = Trend + Seasonal + Random
+Multiplicative: Xt = Trend * Seasonal * Random
+
+**How to Choose Between Additive and Multiplicative Decompositions**
+- The additive model is useful when the seasonal variation is relatively constant over time.
+- The multiplicative model is useful when the seasonal variation increases over time.
+
+
+## STL Decomposition
+
+The Seasonal-Trend Decomposition Procedure by Loess
+• is an iterative, non-parametric smoothing algorithm
+• yields a simultaneous estimation of trend and seasonal effect
+-> robust!
++ very simple to apply
++ very illustrative and quick
++ seasonal effect can be constant or smoothly varying
+- model free, extrapolation and forecasting is difficult
+
+-> Good method for „having a quick look at the data“
+
+
+## Hstart Data Set
 
 Using the data hstart.dat, we illustrate various methods for descriptive decomposition and elimination of trends. The data contains monthly data on the start of residential construction in the USA within the time frame of January 1966 to December 1974. The data have undergone some transformation unknown to us (perhaps an index over some baseline value has been calculated, or perhaps the data are to be read as x · 10^? construction permits).
 
@@ -230,36 +395,14 @@ plot(hstart.ts, lwd = 2, main = 'Residential construction in the USA')
 - not stationary
 - trend
 - seasonal component
-- decomposition possible into trend, seasonal effect and remainder: 
-```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
+- decomposition possible into trend, seasonal effect and remainder:
+
+```{r, echo=FALSE, out.width= '50%'}
 knitr::include_graphics("Ex1.2a.PNG")
 ```
 
-**Log Transformation**
-
-If the data show variation that increases or decreases with the level of the series, then a transformation can be useful. Logarithms can help to stabilise the variance of a time series.
-For example, if we denote the original observations as y1,…,yT and the transformed observations as w1,…,wT, then wt=log(yt).
-Logarithms are interpretable: changes in a log value are relative (or percentage) changes on the original scale. So if log base 10 is used, then an increase of 1 on the log scale corresponds to a multiplication of 10 on the original scale. Another useful feature of log transformations is that they constrain the forecasts to stay positive on the original scale.
-
-Example (log is the logarithm to the base 10), i.e. 
-log(1) =  0
-log(10) = 1
-log(100) =2 
-log(1000)=3
-and so forth. 
-
-This means that the logarithm squezes all values between 1 and 10 to the range between 0 and 1, all values between 10 and 100 to the range between 1 and 2, and all values between 100 and 1000 to the range between 2 and 3. In conclusion, the higher the values get, the more the logarithm squeezes them together.
-
-
-**Differencing**
-
-Computing the differences between consecutive observations, is known as differencing.
-
-Differencing can help stabilise the mean of a time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.
-
 b) Differences
-Try to remove the trend and seasonal effects by computing differences. After removing seasonal
-effects, choose some linear trend elimination method from the course notes and plot the outcome.
+Try to remove the trend and seasonal effects by computing differences. After removing seasonal effects, choose some linear trend elimination method from the course notes and plot the outcome.
 
 **R hint:**
 H.y <- diff(hstart, lag=12) # time series differences Yt = Xt − Xt−k, lag = k
@@ -268,12 +411,12 @@ par(mfrow=c(2,1))
 plot(H.y)
 plot(H.z)
 
-```{r, echo=FALSE, out.width = '100%'}
+```{r, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("diff.PNG")
 ```
 
 - Remove seasonal effects by differencing with lag = 12
-```{r, echo=FALSE, out.width = '100%'}
+```{r, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("Ex1.2b1.PNG")
 ```
 
@@ -284,6 +427,7 @@ hstart.season.diff <- diff(hstart.ts, lag = 12)
 ```{r, echo =F}
 plot(hstart.season.diff, main = "Time series plot after removing the seasonal effect", lwd = 2)
 ```
+
 ```{r}
 hstart.trend.diff <- diff(hstart.season.diff, differences = 1)
 ```
@@ -292,37 +436,50 @@ hstart.trend.diff <- diff(hstart.season.diff, differences = 1)
 plot(hstart.trend.diff, main = "Time series plot after removing the seasonal effect and the trend", lwd = 2)
 ```
 
-```{r, echo=FALSE, out.width = '100%'}
+Code in 2 steps as mentioned above in one code line:
+
+```{r}
+h <- diff(diff(hstart.ts, lag = 12))
+plot(h)
+```
+
+```{r, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("Ex1.2b2.PNG")
 ```
 
 
-**Random Walk**
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("random_walk.png")
+### Modelling using a parametric model
+Decompose the time series into the components using a parametric model. 
+
+```{r, echo=FALSE, out.width = '50%'}
+knitr::include_graphics("additive.png")
 ```
 
-**Second-order differencing**
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("diff_2.png")
+Plot the time series, including fitted values, and comment on any differences. Choose the order of the
+polynomial according to how good it fits the real data. Compare the orders 3, 4 and 6.
+
+```{r, echo=F, out.width='50%'}
+knitr::include_graphics('parametric.png')
 ```
 
-**Seasonal differencing**
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("deason_diff.png")
+```{r}
+Time <- 1:length(hstart.ts)
+Time2 <- Time/12+1966
+Months <- factor(rep(month.name, length(hstart.ts)/12), levels=month.name)
+H.lm6 <- lm(hstart.ts ~ Months + Time + I(Time^2) + I(Time^3)+ I(Time^4) + I(Time^5) + I(Time^6))
+H.lm3 <- lm(hstart.ts ~ Months + Time + I(Time^2) + I(Time^3))
+H.lm4 <- lm(hstart.ts ~ Months + Time + I(Time^2) + I(Time^3)+I(Time^4))
+H.fit6 <- ts(fitted(H.lm6), start=1966, freq=12)
+H.fit3 <- ts(fitted(H.lm3), start=1966, freq=12)
+H.fit4 <- ts(fitted(H.lm4), start=1966, freq=12)
 ```
 
-
-**Decomposition**
-The additive decomposition is the most appropriate if the magnitude of the seasonal fluctuations, or the variation around the trend-cycle, does not vary with the level of the time series.
-
-When the variation in the seasonal pattern, or the variation around the trend-cycle, appears to be proportional to the level of the time series, then a multiplicative decomposition is more appropriate. Multiplicative decompositions are common with economic time series.
-
-An alternative to using a multiplicative decomposition is to first transform the data until the variation in the series appears to be stable over time, then use an additive decomposition. When a log transformation has been used, this is equivalent to using a multiplicative decomposition because:
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("components.png")
+```{r}
+plot(hstart.ts, lwd = 2)
+lines(H.fit6, col = 'red', lty = 2)
+lines(H.fit3, col = 'purple', lty = 2)
+lines(H.fit4, col = 'green', lty = 2)
 ```
-
 
 
 c)  STL decomposition
@@ -331,7 +488,9 @@ Decompose the time series in trend, seasonal component and remainder using the n
 **R hint:**
 The decomposition is made using **H.stl <- stl(hstart, s.window="periodic")**
 
-Note: The smoothing parameter for the seasonal effect is chosen by means of s.window. If s.window="periodic", the seasonal effect is estimated by averaging. It is also possible to specify a value for the smoothing parameter (an odd number). Try e.g. H.stl.var <- stl(hstart, s.window = 15), and compare the result of this to H.stl. Incidentally, summary() can be used for displaying the values of window.
+Note: The smoothing parameter for the seasonal effect is chosen by means of s.window.
+- If s.window="periodic", the seasonal effect is estimated by averaging.
+- It is also possible to specify a value for the smoothing parameter (an odd number). Try e.g. H.stl.var <- stl(hstart, s.window = 15), and compare the result of this to H.stl. Incidentally, summary() can be used for displaying the values of window.
 
 The trend estimation parameter can be set using t.window. Unlike s.window, this argument does have a default value (cf. the help file). Perhaps you could try to vary this parameter as well.
 The documentation for R and the help files give more details.
@@ -339,14 +498,25 @@ Trend, seasonal component and remainder of the STL are stored in
 H.st$time.series[,"trend"]
 H.st$time.series[,"seasonal"]
 H.st$time.series[,"remainder"]
+
+
+### Decomposition of the time series with averaging a smoothing parameter:
+
 ```{r}
 hstart.stl <- stl(hstart.ts, s.window = 'periodic')
 summary(hstart.stl)
 str(hstart.stl)
 ```
+
 ```{r}
 plot(hstart.stl, main = "STL with s.window= 'periodic'", lwd = 2)
 ```
+
+In the plot, we have the original data, additive seasonal effects, the trend curve and the
+residuals (remainder) of the STL decomposition, drawn in order from top to bottom.
+
+
+### Decomposition of the time series by manually choosing a smoothing parameter:
 
 ```{r}
 hstart.stl.var <- stl(hstart.ts, s.window = 15)
@@ -358,62 +528,72 @@ str(hstart.stl.var)
 plot(hstart.stl.var, main = 'STL with s.window = 15', lwd = 2)
 ```
 
-Plot the remainder from the STL-Decomposition vs. time.
-```{r}
 
+### Compare the averaging and manually choosen parameter for the STL:
+
+```{r}
+par(mfrow = c(1, 2), cex = 0.7, mar = c(2, 2, 0.1, 0.1), oma = c(0, 3, 1.5, 0))
+monthplot(hstart.stl$time.series[, "seasonal"], ylab = "")
+mtext("Averaging", side = 3)
+mtext("Seasonal component", side = 2, line = 2, cex = 0.8)
+monthplot(hstart.stl.var$time.series[, "seasonal"], ylab = "")
+mtext("loess window 15", side = 3)
+```
+
+Answer:
+We see that the monthly effects of hstart.stl remain constant over the years, whereas those of hstart.stl.var vary: the effects of May to August increase with the years, while the effects of January, September and December decrease.
+
+```{r}
+hstart.filter <- filter(hstart.ts, c(1,rep(2,11), 1)/24)
+plot(hstart.filter)
+```
+
+Answer: 
+The trend line from the special filter is somewhat less smoooth then the trend line stemming from the STL decomposition. However, the smoothness of the STL trend line can be steered by the smoothness parameter **t.window** of the function stl().
+
+
+### Plot the original data and the STL-Decomposition (trend + season without remainder) vs. time.
+
+```{r}
+plot(hstart.ts, lwd = 2.5)
+lines(hstart.ts - hstart.stl$time.series[,'remainder'],lwd = 2, lty = 'dashed',main = "Data vs. STL", col = 'red')
+legend('topleft', legend = c('Data', 'STL'), col = c(1,2), lty = c(1,2), lwd = c(2.5,2))
 ```
 
 Answer:
 The non-parametric model STL fits the data better than the parametric one does.
 
-In the residual time series plot is shown below. No systematic behavior is visible and hence it
-could be concluded that the combination of the estimated trend and the seasonal effect fits the
-data resonably well.
 
+### Plot the remainder only from the STL-Decomposition vs. time.
 
-# Series 2
-
-## Exercise 2.1
-Remove the linear trend by applying backward differencing on timeseries created from the following models:
-
-a) Xt ∼ 0.5t + 1 + Ut, where Ut ∼ U(−1, 1)
-```{r,warning=F,error=F}
-t <- seq(1,100,length =100)
-Ut <- runif(100,-1,1)
-data <- 0.5 * t + 1 + Ut
-ts.data <- ts(data)
-
-plot(ts.data)
-
-yt <- diff(ts.data)
-
-#comparison of data length
-length(ts.data)
-length(yt)
-
-plot(yt, lwd = 1.5, main = 'Xt ∼ 0.5t + 1 + Ut, where Ut ∼ U(−1, 1)')
+```{r}
+plot(ts(hstart.stl$time.series[,'remainder'], start = c(1966,1), frequency = 12),lty = 1, lwd = 2, ylab='Residuals', main = 'Residual plot', col = 1)
+lines(ts(resid(H.lm6), start = 1966, frequency = 12), lty=3, col =2, lwd = 1.5)
+abline(h=0)
+legend('topleft', legend=c("STL","Parametric model 6"), lty=c(1,3), col=c(1,2))
 ```
 
-b) Xt ∼ 2t^2 + 3t − 1 + Ut, where Ut ∼ U(−200, 200)
-```{r, warning=F,error=F}
-t <- seq(1, 100, length=100)
-Ut <- runif(100, -200, 200)
-data <- 2 * t^2 + 3 * t - 1 + Ut
-ts.data <- ts(data)
+No systematic behavior is visible in the Residual plot and hence it could be concluded that the combination of the estimated trend and the seasonal effect fits the data reasonably well. the discrepancies between the two models are quite
+visible. Over certain intervals of time, the residuals of the parametric model differ from zero in
+a systematic way.
 
-plot(ts.data)
+### Calculating the decomposition
 
-yt <- diff(ts.data, differences = 2)
+```{r}
+hstart.decomp <- decompose(hstart.ts, type = 'additive')
+plot(hstart.decomp, lwd = 2)
+```
 
-#comparison of length
-length(ts.data)
-length(yt)
-
-plot(yt, lwd = 1.5, main = 'Xt ∼ 2t^2 + 3t − 1 + Ut, where Ut ∼ U(−200, 200)')
+### Plot the time series and three different estimates of the rend into one plot:
+```{r}
+plot(hstart.ts, lwd = 2)
+lines(hstart.stl$time.series[,'trend'], lty =1, col = 'green', lwd = 2)
+lines(hstart.filter, lty = 2, col = 'purple', lwd = 2)
+lines(hstart.decomp$trend, lty = 3, col = 'red', lwd = 2)
+legend('topleft', legend = c('Time Series', 'STL trend', 'Filter', 'Decompose'), lty = c(1,2,3), bty = 'n', col = c('black', 'green', 'purple', 'red'))
 ```
 
 
-## Exercise 2.2
 We reconsider the data set from exercise 1.2 about residential construction in the USA
 from January 1966 to December 1974.
 ```{r}
@@ -462,19 +642,59 @@ plot(hstart.adj.trend, lwd = 2, main = 'hstart dataset after eliminating season 
 ```
 
 
-## Exercise 2.3
-To test ideas and algorithms, R comes with built-in data sets. The data used in this
-exercise is called co2 and contains atmospheric concentrations of CO2 in parts per
-million.
+## Backshift differencing
+
+Remove the linear trend by applying backward differencing on timeseries created from the following models:
+
+a) Xt ∼ 0.5t + 1 + Ut, where Ut ∼ U(−1, 1)
+```{r,warning=F,error=F}
+t <- seq(1,100,length =100)
+Ut <- runif(100,-1,1)
+data <- 0.5 * t + 1 + Ut
+ts.data <- ts(data)
+
+plot(ts.data)
+
+yt <- diff(ts.data)
+
+#comparison of data length
+length(ts.data)
+length(yt)
+
+plot(yt, lwd = 1.5, main = 'Xt ∼ 0.5t + 1 + Ut, where Ut ∼ U(−1, 1)')
+```
+
+b) Xt ∼ 2t^2 + 3t − 1 + Ut, where Ut ∼ U(−200, 200)
+```{r, warning=F,error=F}
+t <- seq(1, 100, length=100)
+Ut <- runif(100, -200, 200)
+data <- 2 * t^2 + 3 * t - 1 + Ut
+ts.data <- ts(data)
+
+plot(ts.data)
+
+yt <- diff(ts.data, differences = 2)
+
+#comparison of length
+length(ts.data)
+length(yt)
+
+plot(yt, lwd = 1.5, main = 'Xt ∼ 2t^2 + 3t − 1 + Ut, where Ut ∼ U(−200, 200)')
+```
+
+
+## CO2 Data set
+
+To test ideas and algorithms, R comes with built-in data sets. The data used in this exercise is called co2 and contains atmospheric concentrations of CO2 in parts per million.
+
 ```{r}
 data(co2)
 class(co2)
 plot(co2, main = 'co2 data', lwd = 1.5)
 ```
 
-Use backward differencing on the co2 data to abolish the seasonality effect. Figure
-out what value for the lag is to choose for an optimum reduction of the seasonality?
-What happens if you choose other values for the lag?
+Use backward differencing on the co2 data to abolish the seasonality effect. Figure out what value for the lag is to choose for an optimum reduction of the seasonality? What happens if you choose other values for the lag?
+
 ```{r}
 co2.adj.season <- diff(co2, differences = 1, lag = 12)
 plot(co2.adj.season, lwd = 1.5, main = 'co2 dataset after eliminating seasonal pattern with diff = 1, lag =12')
@@ -485,10 +705,9 @@ plot(co2.adj.bd, lwd = 1.5, main = 'co2 dataset after eliminating seasonal patte
 ```
 
 
-## Exercise 2.4
 Once again have a look at the co2 data set. In this exercise you should try to decompose the series into trend, seasonality and random parts using a linear additive filter. For the seasonal part, the hints below should help you calculate the means over the same months in different years.
 
-TREND ESTIMATION - Attention: if the freqeuncy is even, we have to split take half of the border months if we want to end up with a symmetric window.
+## TREND ESTIMATION - Attention: if the freqeuncy is even, we have to split take half of the border months if we want to end up with a symmetric window.
 ```{r}
 co2.data <- co2
 weights <- c(0.5, rep(1,11), 0.5)/12
@@ -497,7 +716,7 @@ plot(co2.data, lwd= 2, main = 'co2 decomposition with linear additive filter - T
 lines(trend, col= 'red', lwd = 2.5)
 ```
 
-SEASONALITY ESTAMINATION
+## SEASONALITY ESTIMATION
 ```{r}
 weights <- c(0.5, rep(1,11), 0.5)/12
 trend.est <- filter(co2, filter = weights, sides = 2)
@@ -517,14 +736,46 @@ plot(co2.data.decomp, lwd = 1.5, col = 'red')
 ```
 
 
-# Series 3
+## Autocorrelations
 
-## Exercise 3.1
+
+# Keratin Data set
+
+The performance of a machine that analyses the creatine content of human muscular tissue is to be investigated using 157 known samples. These samples are given to the machine one at a time for it to determine their creatine content. In this exercise, we would like to check whether it is operating correctly, i.e. the measured values does not depend on the measuring instance. We focus only on the variable "gehalt"(content) in the data.
+
+```{r}
+keratin <- read.table('https://stat.ethz.ch/Teaching/Datasets/WBL/kreatin.dat')
+keratin.ts <- ts(keratin[,2], start = 1, frequency = 1)
+```
+
+
+**a) Which stochastic model should this series of data follow if the machine is working correctly?**
+
+```{r}
+plot(keratin.ts, lwd = 2, main = 'Ceratine level')
+```
+
+**Use the time series plot, the autocorrelations and the partial autocorrelations to determine whether or not these data fit the ideal model found in Part a).**
+
+**ACF**
+```{r}
+keratin.acf <- acf(keratin.ts, plot = T)
+```
+
+**PACF**
+```{r}
+keratin.pacf <- pacf(keratin.ts, plot = T)
+```
+
+
+## Matching Correlograms 
+
 Below you find the plots and the correlograms of four datasets. The correlograms have been permutated. Please find for each data sets (A-D) the appropriate corellogram
 (1 - 4).
 ```{r, echo=FALSE, fig.cap="plots and correlograms", out.width = '100%'}
 knitr::include_graphics("Exercise_3.1.JPG")
 ```
+
 Solution:
 A - 2
 B - 3
@@ -532,14 +783,13 @@ C - 1
 D - 4
 
 
-## Exercise 3.2
+## Chocolate, beer, electricity Data set
+
 Let us now consider the electricity production of Australia in GWh in the period from
 January 1958 to December 1990. You may download the data from
 http://stat.ethz.ch/Teaching/Datasets/WBL/cbe.dat.
 
-The aim of this exercise is to compare the effect of different algorithms to decompose
-a time series representation in trend, seasonality and remainder by means of their
-(partial) autocorrelation function.
+The aim of this exercise is to compare the effect of different algorithms to decompose a time series representation in trend, seasonality and remainder by means of their (partial) autocorrelation function.
 ```{r}
 data <- read.table('cbe.dat', header = T)
 head(data)
@@ -547,8 +797,7 @@ ts.elec <- ts(data[,'elec'], start = c(1958,1), end = c(1990, 12), freq= 12)
 head(ts.elec)
 ```
 
-a) Start by considering the plot of the time series. Why is not meaningful to interpret the correlogram of this time series?
-Explain in a few sentences.
+**a) Start by considering the plot of the time series. Why is not meaningful to interpret the correlogram of this time series? Explain in a few sentences.**
 ```{r}
 plot(ts.elec, lwd = 1.5)
 ```
@@ -558,24 +807,13 @@ The time series displays a clear trend and a clear seasonality effect. Therefore
 the fundamental assumption of the autocorrelation function analysis (stationarity) is violated.
 
 
-Basic Structures
-The following two structures are considered for basic decomposition models:
-Additive: Xt = Trend + Seasonal + Random
-Multiplicative: Xt = Trend * Seasonal * Random
-
-**How to Choose Between Additive and Multiplicative Decompositions**
-- The additive model is useful when the seasonal variation is relatively constant over time.
-- The multiplicative model is useful when the seasonal variation increases over time.
-
-b) Decompose the time series into trend, seasonal component and remainder using
-the R function decompose(), which performs the decomposition with moving
-averages.
+**b) Decompose the time series into trend, seasonal component and remainder using the R function decompose(), which performs the decomposition with moving averages.**
 ```{r}
 elec.decomp <- decompose(ts.elec, type = 'multiplicative')
 plot(elec.decomp)
 ```
 
-Plot the remainder (random) and its correlogram (acf) and interpret the plots in a few sentences.
+**Plot the remainder (random) and its correlogram (acf) and interpret the plots in a few sentences.**
 The function employs a filter to estimate the trend; therefore, the first and the last few entries of the decomposition are not defined, i.e. the have the value NA in R. To prevent issues of R,
 the parameter na.action=na.pass (asking R to ignore NA entries) has to be employed.
 ```{r}
@@ -587,7 +825,8 @@ Answer:
 The trend is removed from the time series, but we still see a periodic behaviour in the computed remainder. The period of one year equals that of the seasonal component of the original time series. These effects are also visible in the damped oscillatory behaviour of the correlogram.
 
 
-c) Decompose the log-transformed time series using the R function stl(). Estimate the seasonal effect once by averaging over all years (parameter s.window = "periodic") and once by choosing an appropriate smoothing window (parameter s.window = ...). Recall that the window length has to be odd. An appropriate smoothing window may be determined by the R-function monthplot().
+**c) Decompose the log-transformed time series using the R function stl().**
+Estimate the seasonal effect once by averaging over all years (parameter s.window = "periodic") and once by choosing an appropriate smoothing window (parameter s.window = ...). Recall that the window length has to be odd. An appropriate smoothing window may be determined by the R-function monthplot().
 For both estimation approaches (averaging and smoothing window), plot the
 remainder and its correlogram, and comment on the plots.
 ```{r}
@@ -613,7 +852,8 @@ a.23 <- stl(ts.elec, s.window = 23)
 monthplot(a.23)
 ```
 
-Using a smoothing window of 19 (the size is chosen based on the monthplot; other values of similar magnitude yield comparable results), we find the following picture:
+**Using a smoothing window of 19 (the size is chosen based on the monthplot; other values of similar magnitude yield comparable results), we find the following picture:**
+
 ```{r}
 elec.stl.w19 <- stl(log(ts.elec), s.window = 19)
 plot(elec.stl.w19)
@@ -632,7 +872,7 @@ In the smoothing window approach, we allow the seasonal component to vary (sligh
 
 
 
-d) Explain why you used the parameter type = "multiplicative" in Task b), and why you log-transformed the time series before performing an stl()decomposition in Task c).
+**d) Explain why you used the parameter type = "multiplicative" in Task b), and why you log-transformed the time series before performing an stl()decomposition in Task c).**
 
 The seasonal oscillations of the time series (see plot in Task a)) are approximately proportional to the trend. Therefore, a multiplicative model is appropriate
 for describing the time series:
@@ -643,7 +883,8 @@ log(Xt) = log(mt) + log(St) + log(Rt)
 The R function decompose() can handle multiplicative models directly, whereas stl() requires the reduction to an additive model
 
 
-e) As a last algorithm consider the differencing approach. Choose a lag of 1 and 12(months) to eliminate trend and periodic structures. 
+**e) As a last algorithm consider the differencing approach. Choose a lag of 1 and 12(months) to eliminate trend and periodic structures.**
+
 ```{r}
 elec.diff12 <- diff(ts.elec, lag = 12)
 elec.diff12.1 <- diff(elec.diff12, lag = 1)
@@ -657,7 +898,8 @@ acf(elec.diff12.1, ylim = c(-1,1))
 Findings: The acf looks quite different. We have strong negative autocorrelation at lag 1 and 12. Therefore, the model is probably not linear. This method is not appropriate here.
 
 
-## Exercise 3.3
+## Plug-in estimator
+
 In this exercise, we will calculate the lagged scatter plot and the plug-in estimator without employing the internal R function.
 
 a) Write a function to calculate the lagged scatter plot estimator for the autocorrelation. For this, you may extend the code given in the lecture notes.
@@ -714,9 +956,8 @@ The beer data sets displays a high agreement between the two calculation methods
 
 
 
-# Series 4
 
-## Exercise 4.1
+## AR(1) process
 In this exercise, we would like to investigate the properties of an AR(1) process.
 
 a) Simulate a realisation of the process
@@ -746,31 +987,10 @@ d) Now compare the theoretical partical autocorrelation function with the estima
 ```
 
 
-# Exercise 4.2
-An analytical device measures the creatine concentration of human muscular tissue.
-In this exercise, we would like to check whether it is operating correctly, i.e. the measured values does not depend on the measuring instance.
-
-A sample with known concentration is split into 157 samples and measured by the
-device one after the other. You can find them in the data under
-http://stat.ethz.ch/Teaching/Datasets/WBL/kreatin.dat.
-In this exercise, we focus only on the variable "gehalt"(content) in the data.
-
-a) Which stochastic model should this series of data follow if the machine is working correctly?
-```{r}
-
-```
-
-b) Use the time series plot, the autocorrelations (and the partial autocorrelations)
-to determine whether these data fit the ideal model found in Part a) or not.
-```{r}
-
-``` 
 
 
-# Exercise 4.3
-In this exercise, we consider two time series ts1 and ts2, which putatively were
-created by an AR process. You may download the data from
-http://stat.ethz.ch/Teaching/Datasets/WBL/ts_S3_A2.dat
+## Data set with ts1 and ts2
+In this exercise, we consider two time series ts1 and ts2, which putatively were created by an AR process. You may download the data from http://stat.ethz.ch/Teaching/Datasets/WBL/ts_S3_A2.dat
 
 a) Visualise both time series. Are both time series stationary? What is their mean?
 ```{r}
@@ -785,7 +1005,7 @@ Hint: The partial auto correlation function of an AR(p) process displays a sudde
 ```
 
 
-# Exercise 4.4
+## AR(3) model with coefficients
 Let us consider the AR(3) model with coefficients
 α1 = 0.6, α2 = −0.5 and
 α3 = 0.4: Xt = 0.6 · Xt−1 − 0.5 · Xt−2 + 0.4 · Xt−3
