@@ -158,6 +158,124 @@ plot(zeitsim.ts[,4], main = 'Zeitsim Y4', lwd = 1.5)
 Answer:
 - non stationary time series, as Var(Yt) is NOT constant
 
+
+# Transformation, Decomposition and Noise Treatment 
+
+## Stationarity
+
+A stationary time series is one whose properties do not depend on the time at which the series is observed. Thus, time series with trends, or with seasonality, are not stationary — the trend and seasonality will affect the value of the time series at different times.
+A white noise series is stationary — it does not matter when you observe it, it should look much the same at any point in time.
+
+Some cases can be confusing — a time series with cyclic behaviour (but with no trend or seasonality) is stationary. This is because the cycles are not of a fixed length, so before we observe the series we cannot be sure where the peaks and troughs of the cycles will be.
+
+In general, a stationary time series will have no predictable patterns in the long-term. Time plots will show the series to be roughly horizontal (although some cyclic behaviour is possible), with constant variance.
+
+## Skewness
+
+The direction of the skew is dependent on whether the bulk of the material is above the mean line (negative skew) or below the mean line (positive skew).
+```{r, echo=FALSE, out.width = '50%'}
+knitr::include_graphics("skewness.png")
+```
+
+
+## Log Transformation
+
+If the data show variation that increases or decreases with the level of the series, then a transformation can be useful. Logarithms can help to stabilise the variance of a time series.
+For example, if we denote the original observations as y1,…,yT and the transformed observations as w1,…,wT, then wt=log(yt).
+Logarithms are interpretable: changes in a log value are relative (or percentage) changes on the original scale. So if log base 10 is used, then an increase of 1 on the log scale corresponds to a multiplication of 10 on the original scale. Another useful feature of log transformations is that they constrain the forecasts to stay positive on the original scale.
+
+Example (log is the logarithm to the base 10), i.e. 
+log(1) =  0
+log(10) = 1
+log(100) =2 
+log(1000)=3
+and so forth. 
+
+This means that the logarithm squezes all values between 1 and 10 to the range between 0 and 1, all values between 10 and 100 to the range between 1 and 2, and all values between 100 and 1000 to the range between 2 and 3. In conclusion, the higher the values get, the more the logarithm squeezes them together.
+
+## Differencing
+
+One way to make a non-stationary time series stationary — compute the differences between consecutive observations. Computing the differences between consecutive observations, is known as differencing.
+
+Differencing can help stabilise the mean of a time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.
+
+Summary:
++ trend and seasonal effect can be removed
++ procedure is very quick and very simple to implement
+
+- trend, season and remainder component are NOT known, and cannot be visualised
+- resulting time series will be shorter than original data set
+- differencing creates artificial new dependencies that are different from the original ones
+- extrapolation of trend, season and remainder is not easily possible
+
+
+## Random Walk
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("random_walk.png")
+```
+
+## Second-order differencing
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("diff_2.png")
+```
+
+## Seasonal differencing
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("deason_diff.png")
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("drug.png")
+```
+
+
+## Backshift operator and Backshift notation
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('backnotation.png')
+```
+
+```{r, echo=F}
+knitr::include_graphics('backshift.png')
+```
+
+### Remove linear Trend of a non-stationary time series by taking differences of first order at lag 1: diff(x, differences = 1)
+
+```{r, echo=F, out.width='50%'}
+knitr::include_graphics('diff_trend.png')
+```
+
+The new time series Yt is going to be stationary, but has new, strong and artificial dependencies
+
+- Yt now are the observation to observation changes in the series, NOT longer the observations or remainder itself
+- does not yield estimates for trend, season and remainder component
+
+### Differencing for log-transformed series: diff(log(x), differences = 1, lag = 1)
+
+```{r, echo = F, out.width='50%'}
+knitr::include_graphics('diff_log.png')
+```
+
+
+### Remove polynomial Trend: diff(x, differences = 2 or more)
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('diff_higher.png')
+```
+
+This will remove a polynomial trend. A quadratic trend can be removed by taking second-order differences (differences = 2). 
+
+
+Time series with seasonal effects can be made stationary through differencing by comparing to the previous periods’ value.
+
+### Remove Seasonality: diff(x, lag = p)
+
+```{r, echo=F, out.width='50%'}
+knitr::include_graphics('diff_season.png')
+```
+
+
+To remove Trend and Seasonality take first order differences at the lag = p of the period, which removes both trend and season effects: diff(x, differences = 1, lag = 12) example: p = 12
+
 ## Identify characteristics of Time Series
 
 Have a look at the following set of time series. For every series, shortly answer the following questions
@@ -227,15 +345,6 @@ Answer:
 - variance maybe different over time
 - log transformation required due to right skewness
 
-## Skewness
-
-The direction of the skew is dependent on whether the bulk of the material is above the mean line (negative skew) or below the mean line (positive skew).
-```{r, echo=FALSE, out.width = '50%'}
-knitr::include_graphics("skewness.png")
-```
-
-
-
 ```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("Ex1.3g.PNG")
 ```
@@ -246,101 +355,6 @@ Answer:
 - no seasonal effect visible
 - no transformation required
 
-
-## Log Transformation
-
-If the data show variation that increases or decreases with the level of the series, then a transformation can be useful. Logarithms can help to stabilise the variance of a time series.
-For example, if we denote the original observations as y1,…,yT and the transformed observations as w1,…,wT, then wt=log(yt).
-Logarithms are interpretable: changes in a log value are relative (or percentage) changes on the original scale. So if log base 10 is used, then an increase of 1 on the log scale corresponds to a multiplication of 10 on the original scale. Another useful feature of log transformations is that they constrain the forecasts to stay positive on the original scale.
-
-Example (log is the logarithm to the base 10), i.e. 
-log(1) =  0
-log(10) = 1
-log(100) =2 
-log(1000)=3
-and so forth. 
-
-This means that the logarithm squezes all values between 1 and 10 to the range between 0 and 1, all values between 10 and 100 to the range between 1 and 2, and all values between 100 and 1000 to the range between 2 and 3. In conclusion, the higher the values get, the more the logarithm squeezes them together.
-
-
-## Differencing
-
-Computing the differences between consecutive observations, is known as differencing.
-
-Differencing can help stabilise the mean of a time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.
-
-Summary:
-+ trend and seasonal effect can be removed
-+ procedure is very quick and very simple to implement
-
-- trend, season and remainder component are NOT known, and cannot be visualised
-- resulting time series will be shorter than original data set
-- differencing creates artificial new dependencies that are different from the original ones
-- extrapolation of trend, season and remainder is not easily possible
-
-### Backshift operator
-
-```{r, echo=F}
-knitr::include_graphics('backshift.png')
-```
-
-### Remove linear Trend of a non-stationary time series by taking differences of first order at lag 1: diff(x, differences = 1)
-
-```{r, echo=F, out.width='50%'}
-knitr::include_graphics('diff_trend.png')
-```
-
-The new time series Yt is going to be stationary, but has new, strong and artificial dependencies
-
-- Yt now are the observation to observation changes in the series, NOT longer the observations or remainder itself
-- does not yield estimates for trend, season and remainder component
-
-### Differencing for log-transformed series: diff(log(x), differences = 1, lag = 1)
-
-```{r, echo = F, out.width='50%'}
-knitr::include_graphics('diff_log.png')
-```
-
-
-### Remove polynomial Trend: diff(x, differences = 2 or more)
-
-```{r, echo = F, out.width= '50%'}
-knitr::include_graphics('diff_higher.png')
-```
-
-This will remove a polynomial trend. A quadratic trend can be removed by taking second-order differences (differences = 2). 
-
-
-Time series with seasonal effects can be made stationary through differencing by comparing to the previous periods’ value.
-
-### Remove Seasonality: diff(x, lag = p)
-
-```{r, echo=F, out.width='50%'}
-knitr::include_graphics('diff_season.png')
-```
-
-
-To remove Trend and Seasonality take first order differences at the lag = p of the period, which removes both trend and season effects: diff(x, differences = 1, lag = 12) example: p = 12
-
-
-## Random Walk
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("random_walk.png")
-```
-
-## Second-order differencing
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("diff_2.png")
-```
-
-## Seasonal differencing
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("deason_diff.png")
-```
-
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("drug.png")
-```
 
 
 ## Decomposition
@@ -354,7 +368,7 @@ knitr::include_graphics("components.png")
 ```
 
 
-Basic Structures
+### Basic Structures
 The following two structures are considered for basic decomposition models:
 Additive: Xt = Trend + Seasonal + Random
 Multiplicative: Xt = Trend * Seasonal * Random
@@ -377,6 +391,83 @@ The Seasonal-Trend Decomposition Procedure by Loess
 
 -> Good method for „having a quick look at the data“
 
+
+
+# Quantitative Description and Correlation functions
+
+Autocorrelation measures the linear relationship between lagged values of a time series.
+There are several autocorrelation coefficients, corresponding to each panel in the lag plot. For example,  
+r1 measures the relationship between yt and yt−1, r2 measures the relationship between yt and yt−2, and so on.
+
+```{r, echo = F, out.width='50%'}
+knitr::include_graphics('auto.png')
+```
+
+## Autocorrelation ACF
+
+The ACF plot is also useful for identifying non-stationary time series. For a stationary time series, the ACF will drop to zero relatively quickly, while the ACF of non-stationary data decreases slowly. Also, for non-stationary data, the value of r1 is often large and positive.
+
+### Trend in ACF plots
+
+When data have a trend, the autocorrelations for small lags tend to be large and positive because observations nearby in time are also nearby in size. So the ACF of trended time series tend to have positive values that slowly decrease as the lags increase. 
+
+### Season in ACF plots
+
+When data are seasonal, the autocorrelations will be larger for the seasonal lags (at multiples of the seasonal frequency) than for other lags.
+
+When data are both trended and seasonal, you see a combination of these effects. 
+
+## Partial Autocorrelation PACF
+
+
+## White Noise
+
+Time series that show no autocorrelation are called white noise.
+For white noise series, we expect each autocorrelation to be close to zero. Of course, they will not be exactly equal to zero as there is some random variation.
+For a white noise series, we expect 95% of the spikes in the ACF to lie within ±2/√T where T is the length of the time series.
+It is common to plot these bounds on a graph of the ACF. If one or more large spikes are outside these bounds, or if substantially more than 5% of spikes are outside these bounds, then the series is probably not white noise.
+
+# Modeling
+
+Exponential smoothing and ARIMA models are the two most widely used approaches to time series forecasting, and provide complementary approaches to the problem. While exponential smoothing models are based on a description of the trend and seasonality in the data, ARIMA models aim to describe the autocorrelations in the data.
+
+## AR - Autoregressive Models
+
+In an autoregression model, we forecast the variable of interest using a linear combination of past values of the variable. The term autoregression indicates that it is a regression of the variable against itself.
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('ar.png')
+```
+
+Changing the parameters ϕ1,…,ϕp results in different time series patterns.
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('ar1.png')
+```
+
+ 
+
+
+## MA
+
+## ARMA
+
+
+## ARIMA
+
+ARIMA models aim to describe the autocorrelations in the data.
+
+## SARIMA
+
+## (G)ARCH
+
+# Forecasting
+
+# Panel Data
+
+
+
+
+# Data sets and Exercises
 
 ## Hstart Data Set
 
@@ -482,7 +573,7 @@ lines(H.fit4, col = 'green', lty = 2)
 ```
 
 
-c)  STL decomposition
+**c)  STL decomposition**
 Decompose the time series in trend, seasonal component and remainder using the non-parametric STL method, and add data from this decomposition to the plot from part a).
 
 **R hint:**
@@ -594,8 +685,7 @@ legend('topleft', legend = c('Time Series', 'STL trend', 'Filter', 'Decompose'),
 ```
 
 
-We reconsider the data set from exercise 1.2 about residential construction in the USA
-from January 1966 to December 1974.
+We reconsider the data set from exercise 1.2 about residential construction in the USA from January 1966 to December 1974.
 ```{r}
 hstart <- read.table('https://stat.ethz.ch/Teaching/Datasets/WBL/hstart.dat')
 head(hstart)
@@ -603,16 +693,14 @@ ts.hstart <- ts(hstart[,1], start = c(1966,1), frequency = 12)
 ts.hstart
 ```
 
-a) Decompose the time series in trend, seasonal component and remainder using
-the non-parametric STL method, and plot the results.
+**a) Decompose the time series in trend, seasonal component and remainder using the non-parametric STL method, and plot the results.**
 ```{r}
 hstart.stl <- stl(ts.hstart, s.window = 'per')
 
 plot(hstart.stl, lwd = 1.5, col = 'red')
 ```
 
-b) The special filter Yt = 1/24 (Xt−6 + 2Xt−5 + ... + 2Xt + ... + Xt+6) can be used for
-computing a trend estimate. 
+**b) The special filter Yt = 1/24 (Xt−6 + 2Xt−5 + ... + 2Xt + ... + Xt+6) can be used for computing a trend estimate.** 
 ```{r}
 weights <- c(1, rep(2,11), 1)/24 # total of 13 values because t-6 unti t+6
 weights
@@ -629,7 +717,7 @@ lines(hstart.stl$time.series[,'trend'], col = 'green', lwd = 3, lty = 2)
 legend('topleft', legend = c('data', 'filter', 'stl'), lty = 1:2, col = c('black', 'red', 'green'), cex = 0.8)
 ```
 
-c) Try to remove the trend and seasonal effects by computing differences. After removing seasonal effects, choose some linear trend elimination method and plot the outcome.
+**c) Try to remove the trend and seasonal effects by computing differences. After removing seasonal effects, choose some linear trend elimination method and plot the outcome.**
 ```{r}
 hstart.adj.season <- diff(ts.hstart, lag = 12, differences = 1)
 plot(hstart.adj.season, lwd = 2, main = 'hstart data after removing seasonal pattern')
@@ -642,7 +730,7 @@ plot(hstart.adj.trend, lwd = 2, main = 'hstart dataset after eliminating season 
 ```
 
 
-## Backshift differencing
+### Backshift differencing
 
 Remove the linear trend by applying backward differencing on timeseries created from the following models:
 
@@ -707,7 +795,8 @@ plot(co2.adj.bd, lwd = 1.5, main = 'co2 dataset after eliminating seasonal patte
 
 Once again have a look at the co2 data set. In this exercise you should try to decompose the series into trend, seasonality and random parts using a linear additive filter. For the seasonal part, the hints below should help you calculate the means over the same months in different years.
 
-## TREND ESTIMATION - Attention: if the freqeuncy is even, we have to split take half of the border months if we want to end up with a symmetric window.
+### TREND ESTIMATION
+Attention: if the freqeuncy is even, we have to split take half of the border months if we want to end up with a symmetric window.
 ```{r}
 co2.data <- co2
 weights <- c(0.5, rep(1,11), 0.5)/12
@@ -716,7 +805,7 @@ plot(co2.data, lwd= 2, main = 'co2 decomposition with linear additive filter - T
 lines(trend, col= 'red', lwd = 2.5)
 ```
 
-## SEASONALITY ESTIMATION
+### SEASONALITY ESTIMATION
 ```{r}
 weights <- c(0.5, rep(1,11), 0.5)/12
 trend.est <- filter(co2, filter = weights, sides = 2)
@@ -736,10 +825,10 @@ plot(co2.data.decomp, lwd = 1.5, col = 'red')
 ```
 
 
-## Autocorrelations
 
 
-# Keratin Data set
+
+## Keratin Data set
 
 The performance of a machine that analyses the creatine content of human muscular tissue is to be investigated using 157 known samples. These samples are given to the machine one at a time for it to determine their creatine content. In this exercise, we would like to check whether it is operating correctly, i.e. the measured values does not depend on the measuring instance. We focus only on the variable "gehalt"(content) in the data.
 
