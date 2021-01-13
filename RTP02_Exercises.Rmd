@@ -91,7 +91,9 @@ plot(zeitsim.ts[,1], main = 'Zeitsim Y1', lwd = 1.5)
 ```
 
 Answer: 
+
 - stationary time series
+
 - MA(1) process
 
 
@@ -113,7 +115,9 @@ plot(zeitsim.ts[,2], main = 'Zeitsim Y2', lwd = 1.5)
 ```
 
 Answer:
+
 - non stationary time series
+
 - Yt-1 and Et are uncorrelated random variables
 
 
@@ -135,7 +139,9 @@ plot(zeitsim.ts[,3], main = 'Zeitsim Y3', lwd = 1.5)
 ```
 
 Answer:
+
 - stationary time series
+
 - AR(1) process
 
 **d) Y4: Yt = Yt−1 · Et, where Et ∼ U(0.95, 1.05) i.i.d. Y0 = 1**
@@ -156,10 +162,15 @@ plot(zeitsim.ts[,4], main = 'Zeitsim Y4', lwd = 1.5)
 ```
 
 Answer:
+
 - non stationary time series, as Var(Yt) is NOT constant
 
 
-# Transformation, Decomposition and Noise Treatment 
+# Transformation
+
+- Linear transformation (mostly for unit/range conversion)
+
+- Log transformation (to reduce right-skewedness in data distribution)
 
 ## Stationarity
 
@@ -170,6 +181,23 @@ Some cases can be confusing — a time series with cyclic behaviour (but with no
 
 In general, a stationary time series will have no predictable patterns in the long-term. Time plots will show the series to be roughly horizontal (although some cyclic behaviour is possible), with constant variance.
 
+### Testing Stationarity
+
+- Only the time series process can be tested for stationarity not the realization
+
+- Augmented Dickey-Fuller test
+
+- Phillips-Perron Test
+
+- KPSS Test
+
+- Elliot Rothenberg-Stock
+
+- Schmidt-Phillips
+
+- Zivot-Andrews
+
+
 ## Skewness
 
 The direction of the skew is dependent on whether the bulk of the material is above the mean line (negative skew) or below the mean line (positive skew).
@@ -177,10 +205,22 @@ The direction of the skew is dependent on whether the bulk of the material is ab
 knitr::include_graphics("skewness.png")
 ```
 
+## Linear Transformation
+
+**Yt = mXt + b** with **m** and **b** as constants.
+Used for conversion of units:
+
+CHF to EURO
+Km to meters
+Joule to Kilowatt-hours
+
+Linear transformations only scale key properties such as autocorrelations, models and forecasts.
 
 ## Log Transformation
 
-If the data show variation that increases or decreases with the level of the series, then a transformation can be useful. Logarithms can help to stabilise the variance of a time series.
+**gt = log(Xt)**
+
+Used for right-skewed time series distributation or if the data show variation that increases or decreases with the level of the series, then a transformation can be useful. Logarithms can help to stabilise the variance of a time series.
 For example, if we denote the original observations as y1,…,yT and the transformed observations as w1,…,wT, then wt=log(yt).
 Logarithms are interpretable: changes in a log value are relative (or percentage) changes on the original scale. So if log base 10 is used, then an increase of 1 on the log scale corresponds to a multiplication of 10 on the original scale. Another useful feature of log transformations is that they constrain the forecasts to stay positive on the original scale.
 
@@ -193,11 +233,54 @@ and so forth.
 
 This means that the logarithm squezes all values between 1 and 10 to the range between 0 and 1, all values between 10 and 100 to the range between 1 and 2, and all values between 100 and 1000 to the range between 2 and 3. In conclusion, the higher the values get, the more the logarithm squeezes them together.
 
+# Methods for trend determination/elimination
+
+- (linear) fitting, e.g. with ordinary least square fitting
+
+```{r}
+
+```
+
+- (Backwards) differencing (higher order differences eliminate higher order polynomial trends)
+- filtration
+
+**Advantages and drawbacks of the individual procedures**
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('adv.png')
+```
+
+## Linear Regression 
+
+Detrending with linear regression it is possible if the trend is deterministic (e.g. a linear trend). You run a linear regression to estimate the trend and remove it from the data.
+
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('detrend.png')
+```
+
+In deterministic models, the output of the model is fully determined by the parameter values and the initial conditions.
+
+Stochastic models possess some inherent randomness. The same set of parameter values and initial
+conditions will lead to an ensemble of different outputs.
+
+If the trend is stochastic you should detrend the series by taking first differences on it.
+
 ## Differencing
 
 One way to make a non-stationary time series stationary — compute the differences between consecutive observations. Computing the differences between consecutive observations, is known as differencing.
 
 Differencing can help stabilise the mean of a time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.
+
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('rtp_diff.png')
+```
+
+**Connection to calculus**
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('derivative.png')
+```
+
 
 Summary:
 + trend and seasonal effect can be removed
@@ -215,17 +298,58 @@ knitr::include_graphics("random_walk.png")
 ```
 
 ## Second-order differencing
+
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('2nd_derivative.png')
+```
+
 ```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("diff_2.png")
 ```
 
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('2nd.png')
+```
+
+
+### Taylor's Theorem
+
+```{r}
+knitr::include_graphics('taylor.png')
+```
+
+
 ## Seasonal differencing
+
+Seasonality manifests itself by a repetitive behaviour after a fixed lag time p.
+
+**Yt = Xt - Xt-p = (1 - B^p)Xt**
+
+Note: (1 - B^p) is NOT (1 - B)^p
+
 ```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("deason_diff.png")
 ```
 
 ```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("drug.png")
+```
+
+**Example of time series representation with seasonality**
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('cos.png')
+```
+
+**Example of time series representation with seasonality**
+
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('cos_diff.png')
+```
+
+**Calculation of the time series with seasonality**
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('calc_cos.png')
 ```
 
 
@@ -275,6 +399,83 @@ knitr::include_graphics('diff_season.png')
 
 
 To remove Trend and Seasonality take first order differences at the lag = p of the period, which removes both trend and season effects: diff(x, differences = 1, lag = 12) example: p = 12
+
+
+## Filtration to reduce noise impact
+
+Differencing and filtering is not the same!!
+
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('diff_filter.png')
+```
+
+Filtering is used to reduce the noise element, by averaging multiple (e.g. 3) measurements, short-term variations are smoothed out and the trend is confirmed -> We obtain a new averaged time series. 
+
+```{r, echo = F, out.width= '25%'}
+knitr::include_graphics('filt.png')
+```
+
+
+In case of seasonality effects, the has to expand over the full period to extract the trend and to quantify the seasonal impact, the values of the same time in the season have to be averaged.
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('avg_season.png')
+```
+
+### Additive linear filters
+
+```{r, echo = F, out.width= '100%'}
+knitr::include_graphics('avg.png')
+```
+
+**Example of filter aplication**
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('filter_ex.png')
+```
+
+### Exponential smoothing filter
+
+
+
+### Advantages and Drawbacks
+
+Soomthing, filtering:
+
++ trend and seasonal effect can be estimated
++ trend, season and remainder are explicitly known & can be visualized 
++ procedure is transparent and simple to implement
+
+- resulting time series will be shorter than the original
+- the running mean is not the very best smoother
+- extraolation of trend and season are not entirely obvious
+- seasonal effect is handled as constant over time
+
+
+## Decomposition
+
+The aim of time series analysis is to reduce the series to stationarity.
+
+### Basic Structures
+The following two structures are considered for basic decomposition models:
+Additive: Xt = Trend + Seasonal + Random
+Multiplicative: Xt = Trend * Seasonal * Random
+
+**How to Choose Between Additive and Multiplicative Decompositions**
+- The additive model is useful when the seasonal variation is relatively constant over time.
+- The multiplicative model is useful when the seasonal variation increases over time.
+
+The additive decomposition is the most appropriate if the magnitude of the seasonal fluctuations, or the variation around the trend-cycle, does not vary with the level of the time series.
+
+When the variation in the seasonal pattern, or the variation around the trend-cycle, appears to be proportional to the level of the time series, then a multiplicative decomposition is more appropriate. Multiplicative decompositions are common with economic time series.
+
+An alternative to using a multiplicative decomposition is to first transform the data until the variation in the series appears to be stable over time, then use an additive decomposition. When a log transformation has been used, this is equivalent to using a multiplicative decomposition because:
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("components.png")
+```
+
+
 
 ## Identify characteristics of Time Series
 
@@ -356,27 +557,135 @@ Answer:
 - no transformation required
 
 
+# Quantitative Description and Correlation functions
 
-## Decomposition
-The additive decomposition is the most appropriate if the magnitude of the seasonal fluctuations, or the variation around the trend-cycle, does not vary with the level of the time series.
+Autocorrelation measures the linear relationship between lagged values of a time series and quantifies dependencies.
+There are several autocorrelation coefficients, corresponding to each panel in the lag plot. For example,  
+r1 measures the relationship between yt and yt−1, r2 measures the relationship between yt and yt−2, and so on.
 
-When the variation in the seasonal pattern, or the variation around the trend-cycle, appears to be proportional to the level of the time series, then a multiplicative decomposition is more appropriate. Multiplicative decompositions are common with economic time series.
+```{r, echo = F, out.width='50%'}
+knitr::include_graphics('auto.png')
+```
 
-An alternative to using a multiplicative decomposition is to first transform the data until the variation in the series appears to be stable over time, then use an additive decomposition. When a log transformation has been used, this is equivalent to using a multiplicative decomposition because:
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("components.png")
+## Lagged Scatterplots
+
+With lagged scatterplots correlations of consecutive observations are possible. Original time series values will be plotted against a time-shifted version. e.g. xi, xi-k. 
+The average over a realization will be exchanged with the average over time.
+We assume that for stationary time series, the correlation depends only on the lag.
+
+```{r, echo =F, out.width='100%'}
+knitr::include_graphics('lagplot.png')
+```
+
+Observations:
+
+The plot with lag 1 shows a inear pattern, which indicates a correlation between subsequent data points. A ag 10 however results in a rather unspecific scatter plot.
+
+Formula:
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('lag.png')
 ```
 
 
-### Basic Structures
-The following two structures are considered for basic decomposition models:
-Additive: Xt = Trend + Seasonal + Random
-Multiplicative: Xt = Trend * Seasonal * Random
 
-**How to Choose Between Additive and Multiplicative Decompositions**
-- The additive model is useful when the seasonal variation is relatively constant over time.
-- The multiplicative model is useful when the seasonal variation increases over time.
+## Plug-in Estimator
 
+Plug-in estimation is the standard approach for computing autocorrelations in time series analysis. It is better than the lagged scatterplot idea.
+
+**Calculated with the acf() function in R.**
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('comp.png')
+```
+
+
+**Formula**
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('plugin.png')
+```
+
+### Lagged scatterplot estimator versus Plug-in estimator for autocorrelation
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('lag_plug.png')
+```
+
+The major differences 
+## Autocorrelation ACF
+
+The ACF plot is also useful for identifying non-stationary time series. For a stationary time series, the ACF will drop to zero relatively quickly, while the ACF of non-stationary data decreases slowly. Also, for non-stationary data, the value of r1 is often large and positive.
+
+- For time series shorter than 100 elements, the plug-in estimator p(k) is biased
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('cor.png')
+```
+
+Concept:
+The correlation p(k)^2 squared corresponds to the percentage of variability explained by the linear association between Xt and Xt+k -> R^2.
+
+**Variance: Var(Xt) = E[(Xt-mean)^2] = Cov(Xt,Xt) with mean = E[Xt]**
+
+### ACF Characteristics 
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('acf.png')
+```
+
+### Patterns in ACF of non-stationary time series
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('patt.png')
+```
+
+### Trend in ACF plots
+
+When data have a trend, the autocorrelations for small lags tend to be large and positive because observations nearby in time are also nearby in size. So the ACF of trended time series tend to have positive values that slowly decrease as the lags increase. 
+
+### Season in ACF plots
+
+When data are seasonal, the autocorrelations will be larger for the seasonal lags (at multiples of the seasonal frequency) than for other lags.
+
+When data are both trended and seasonal, you see a combination of these effects. 
+
+
+
+## Partial Autocorrelation PACF
+
+The ACF measures the „simple“ dependence between and , whereas the PACF measures that dependence in a „multiple“ fashion.
+Given a time series , the partial autocorrelation of lag , is the autocorrelation between and with the linear
+dependence of through to removed.
+It is a conditional correlation of the random variables A, B under condition C.
+
+## Ljung-Box Test
+
+The Ljung-Box approach tests the Null-Hypothesis that a number of autocorrelation coefficients are simultaneously equal to 0. Meaning, the Ljung-Box test tests for significant autocorrelation in a time series.
+
+The Ljung–Box test may be defined as:
+
+H0: The data are independently distributed (p-value > 0.05)
+
+Ha: The data are not independently distributed; they exhibit serial correlation. (p-value < 0.05)
+
+Formula and R-code:
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('ljung.png')
+```
+
+Outcome:
+
+The p-value shows that the series is not independently distributed. H0 rejected. Ha accepted.
+
+
+## White Noise
+
+Time series that show no autocorrelation are called white noise.
+For white noise series, we expect each autocorrelation to be close to zero. Of course, they will not be exactly equal to zero as there is some random variation.
+For a white noise series, we expect 95% of the spikes in the ACF to lie within ±2/√T where T is the length of the time series.
+It is common to plot these bounds on a graph of the ACF. If one or more large spikes are outside these bounds, or if substantially more than 5% of spikes are outside these bounds, then the series is probably not white noise.
 
 ## STL Decomposition
 
@@ -393,50 +702,43 @@ The Seasonal-Trend Decomposition Procedure by Loess
 
 
 
-# Quantitative Description and Correlation functions
-
-Autocorrelation measures the linear relationship between lagged values of a time series.
-There are several autocorrelation coefficients, corresponding to each panel in the lag plot. For example,  
-r1 measures the relationship between yt and yt−1, r2 measures the relationship between yt and yt−2, and so on.
-
-```{r, echo = F, out.width='50%'}
-knitr::include_graphics('auto.png')
-```
-
-## Autocorrelation ACF
-
-The ACF plot is also useful for identifying non-stationary time series. For a stationary time series, the ACF will drop to zero relatively quickly, while the ACF of non-stationary data decreases slowly. Also, for non-stationary data, the value of r1 is often large and positive.
-
-### Trend in ACF plots
-
-When data have a trend, the autocorrelations for small lags tend to be large and positive because observations nearby in time are also nearby in size. So the ACF of trended time series tend to have positive values that slowly decrease as the lags increase. 
-
-### Season in ACF plots
-
-When data are seasonal, the autocorrelations will be larger for the seasonal lags (at multiples of the seasonal frequency) than for other lags.
-
-When data are both trended and seasonal, you see a combination of these effects. 
-
-## Partial Autocorrelation PACF
-
-
-## White Noise
-
-Time series that show no autocorrelation are called white noise.
-For white noise series, we expect each autocorrelation to be close to zero. Of course, they will not be exactly equal to zero as there is some random variation.
-For a white noise series, we expect 95% of the spikes in the ACF to lie within ±2/√T where T is the length of the time series.
-It is common to plot these bounds on a graph of the ACF. If one or more large spikes are outside these bounds, or if substantially more than 5% of spikes are outside these bounds, then the series is probably not white noise.
 
 # Modeling
 
 Exponential smoothing and ARIMA models are the two most widely used approaches to time series forecasting, and provide complementary approaches to the problem. While exponential smoothing models are based on a description of the trend and seasonality in the data, ARIMA models aim to describe the autocorrelations in the data.
 
-## AR - Autoregressive Models
+Purpose of modelling:
+- to explain hidden structures
+- to predict future values
 
-In an autoregression model, we forecast the variable of interest using a linear combination of past values of the variable. The term autoregression indicates that it is a regression of the variable against itself.
+Challenge:
+- What model is the most suitable model?
+
+```{r, echo=F, out.width= '100%'}
+knitr::include_graphics('model.png')
+```
+
+
+## AR(p) - Autoregressive Models
+
+AR Models are exclusively used for the modeling of STATIONARY processes and base on the idea that the current value of the series can be explained by a linear combination of the p previous values **Xt-p + et (et = innovation = 'completely independent term'). Meaning, we forecast the variable of interest using a linear combination of past values of the variable. The term autoregression indicates that it is a regression of the variable against itself.
+
 ```{r, echo = F, out.width= '50%'}
 knitr::include_graphics('ar.png')
 ```
+
+For a AR(1) process its definition it's:
+
+```{r, echo=F, out.width='25%'}
+knitr::include_graphics('arp1.png')
+```
+
+That means that the random walk is a special case of an AR(1) with a1 = 1.
+
+
+An AR(p) stochastic process is weakly stationary, if all complex roots of the characteristic polynomial exceed 1 in absolute value. 
+
+R-Code: polyroot() function -> computes the complex roots of a given polynomial.
 
 Changing the parameters ϕ1,…,ϕp results in different time series patterns.
 
@@ -444,21 +746,128 @@ Changing the parameters ϕ1,…,ϕp results in different time series patterns.
 knitr::include_graphics('ar1.png')
 ```
 
- 
+### Fitting AR(p)-Models 
+
+**1) Model identification**
+- is an AR process suitable, and what is the p?
+- will be based on ACF/PACF-Analysis
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('ident.png')
+```
 
 
-## MA
+**2) Parameter Estimation**
+- Regression approach
+- Yule-Walker-Equations
+- and more (MLE, Burg-Algorithm)
 
-## ARMA
+**3) Residual Analysis**
+- to be discussed
+
+
+### Autocorrelation of AR(p) processes
+
+
+
+## Parameter identification
+
+The following methods are equal for theoretical models and yield similar results on realizations.
+The models are sensitive to outliers and work best on data that follows a normal (gaussian) distribution.
+
+
+### OLS - Ordinary Least Square 
+
+
+Procedure:
+1) estimate the global mean and determine xt = yt - m
+2) carry out regression on xt without intercept; resulting parameters are a1, a2, ... , a(p)
+3) estimate the standard deviation (sd) of the innovation from the standard deviation of the residual
+
+R-code: ar.ols(data, order = p)
+
+
+### Yule Walker Equations
+
+These equations are used for fitting an AR(p)-model:
+
+1) estimate the ACF from a time series
+2) plug-in the estimates into the Yule-Walker-Equations
+3) the solution are the AR(p)-coefficients
+
+Note: the model coefficients and the ACF values are interlaced
+
+### Burg' Equation's Algorithm
+
+Another fitting cost function that exploit (erschliessen) the first p function values. 
+
+R-code: ar.burg(data, order.max=p)
+
+### MLE - Maximum Likelihood Estimator
+
+Determines the parameter based on an optimization of the maximum likelihood function.
+
+R-code: arima(data, order=c(2,0,0))
+
+
+### AIC - Akaike Information Criterion
+
+Estimates the relative amount of information list by the considered model. Based on the idea, that less information a model loses, the higher the quality of that model. 
+
+## MA(q)
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('ma.png')
+```
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('ma1.png')
+```
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('ma2.png')
+```
+
+
+## ARMA (p,q)
+
+AR and MA together gives the following formula:
+
+```{r, echo = F, out.width='25%'}
+knitr::include_graphics('arma.png')
+```
 
 
 ## ARIMA
 
-ARIMA models aim to describe the autocorrelations in the data.
+ARIMA models are non-stationary ARMA models (I = Integration) and aim to describe the autocorrelations in the data. 
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('arima1.png')
+```
 
 ## SARIMA
 
-## (G)ARCH
+Seasonal ARIMA model
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('sarima.png')
+```
+
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('sarima1.png')
+```
+
+
+ 
+
+## ETS vs ARIMA
+
+```{r, echo = F, out.width= '50%'}
+knitr::include_graphics('ets_arima.png')
+```
+
+## ARCH/GARCH Models
 
 # Forecasting
 
@@ -488,7 +897,7 @@ plot(hstart.ts, lwd = 2, main = 'Residential construction in the USA')
 - seasonal component
 - decomposition possible into trend, seasonal effect and remainder:
 
-```{r, echo=FALSE, out.width= '50%'}
+```{r, echo=FALSE, out.width= '30%'}
 knitr::include_graphics("Ex1.2a.PNG")
 ```
 
@@ -502,12 +911,12 @@ par(mfrow=c(2,1))
 plot(H.y)
 plot(H.z)
 
-```{r, echo=FALSE, out.width = '50%'}
+```{r, echo=FALSE, out.width = '70%'}
 knitr::include_graphics("diff.PNG")
 ```
 
 - Remove seasonal effects by differencing with lag = 12
-```{r, echo=FALSE, out.width = '50%'}
+```{r, echo=FALSE, out.width = '30%'}
 knitr::include_graphics("Ex1.2b1.PNG")
 ```
 
@@ -542,7 +951,7 @@ knitr::include_graphics("Ex1.2b2.PNG")
 ### Modelling using a parametric model
 Decompose the time series into the components using a parametric model. 
 
-```{r, echo=FALSE, out.width = '50%'}
+```{r, echo=FALSE, out.width = '30%'}
 knitr::include_graphics("additive.png")
 ```
 
