@@ -233,6 +233,15 @@ and so forth.
 
 This means that the logarithm squezes all values between 1 and 10 to the range between 0 and 1, all values between 10 and 100 to the range between 1 and 2, and all values between 100 and 1000 to the range between 2 and 3. In conclusion, the higher the values get, the more the logarithm squeezes them together.
 
+
+## Box-Cox Transformation
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('box.png')
+```
+
+R-code: BoxCox.lambda(data) 
+
 # Methods for trend determination/elimination
 
 - (linear) fitting, e.g. with ordinary least square fitting
@@ -567,6 +576,17 @@ r1 measures the relationship between yt and yt−1, r2 measures the relationship
 knitr::include_graphics('auto.png')
 ```
 
+## What is important about ACF estimation?
+
+- Correlations are never to be trusted without a visual inspection with a scatterplot.
+- The bigger the lag k, the fewer data pairs remain for estimating the acf at lag k.
+- Rule of the thumb: the acf is only meaningful up to about
+a) lag 10*log10(n)
+b) lag n/4
+- The estimated sample ACs can be highly correlated.
+**- The correlogram is only meaningful for stationary series!!!**
+
+
 ## Lagged Scatterplots
 
 With lagged scatterplots correlations of consecutive observations are possible. Original time series values will be plotted against a time-shifted version. e.g. xi, xi-k. 
@@ -587,11 +607,21 @@ Formula:
 knitr::include_graphics('lag.png')
 ```
 
+Outliers may be diagnosed by lagged scatter plots. Note that each outlier causes other outliers. 
+
+Strategies for coping with outliers:
+a) Delete the point or replace it with Na (most functions in R can handle this)
+
+Replace the outlier value with
+b) global mean of the series
+c) nearest value in the vicinity
+d) local mean of the series (i.e. odd number of surrounding values)
+e) fit a time series model to the remaining/surrounding values and predict the missing value
 
 
 ## Plug-in Estimator
 
-Plug-in estimation is the standard approach for computing autocorrelations in time series analysis. It is better than the lagged scatterplot idea.
+Plug-in estimation is the standard approach for computing autocorrelations in time series analysis. It is better than the lagged scatterplot idea, however the plug-in estimator p(k) is sensitive to outliers.
 
 **Calculated with the acf() function in R.**
 
@@ -612,7 +642,7 @@ knitr::include_graphics('plugin.png')
 knitr::include_graphics('lag_plug.png')
 ```
 
-The major differences 
+
 ## Autocorrelation ACF
 
 The ACF plot is also useful for identifying non-stationary time series. For a stationary time series, the ACF will drop to zero relatively quickly, while the ACF of non-stationary data decreases slowly. Also, for non-stationary data, the value of r1 is often large and positive.
@@ -718,6 +748,37 @@ Challenge:
 knitr::include_graphics('model.png')
 ```
 
+## ARIMA models: Overview
+
+```{r, echo =F, out.width='100%'}
+knitr::include_graphics('arima.png')
+```
+## Simulating data
+
+### Simulating an AR(p) model
+
+R-code: arima.sim(n=1000, list(ar=c(alpha1, alpha2,...,alpha(p))))
+
+### Simulating a MA(q) model
+
+R-code: arima.sim(n = 1000, list(ma=c(beta1, beta2,...,beta(q))))
+
+### Simulating an ARMA(p,q) model
+
+R-code: arima.sim(n = 1000, list(ar=c(alpha1, alpha2,...,alpha(p)),ma=c(beta1, beta2,...,beta(q))))
+
+### Theoretical autocorrelation function
+
+R-code: ARMAacf(ar=c(alpha1,alpha2,...,alpha(p)), pacf=TRUE)
+R-code: ARNAacf(ma=c(beta1,beta2,...,beta(q)), pacf= TRUE)
+
+
+## Characteristic polynomial
+
+```{r, echo = F, out.width= '75%'}
+knitr::include_graphics('poly.png')
+```
+
 
 ## AR(p) - Autoregressive Models
 
@@ -748,36 +809,41 @@ knitr::include_graphics('ar1.png')
 
 ### Fitting AR(p)-Models 
 
-**1) Model identification**
+**1) Model identification and order identification**
 - is an AR process suitable, and what is the p?
-- will be based on ACF/PACF-Analysis
+- will be based on ACF/PACF-Analysis (ACF fast decaying/PACF cut-off at p)
+- order identification (cut-off of PACF)
 
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('ident.png')
 ```
 
 
-**2) Parameter Estimation**
-- Regression approach
+**2) Parameter Estimation and Fitting**
+- Regression approach with OLS
 - Yule-Walker-Equations
-- and more (MLE, Burg-Algorithm)
+- MLE
+- Burg-Algorithm
 
-**3) Residual Analysis**
-- to be discussed
+**3) Model Diagnostic -> Residual Analysis**
+- Time Series plot of Êt (Êt = Residuals)
+- ACF/PACF plot of Êt (Êt = Residuals)
+- QQ-plot of Êt (Êt = Residuals)
+->>> the innovation time series Êt should look like White Noise
+- simulation of time series and qualitative comparison
+
+###1) Autocorrelation of AR(p) processes
+
+Autocorrelation function is used to clarify if the AR(p) model is the right choice and what is the proper order p for the given data, but it will turn out that the ACF is not sufficient, while we need to use the **partial autocorrelation**.
 
 
-### Autocorrelation of AR(p) processes
-
-
-
-## Parameter identification
+##2) Parameter identification
 
 The following methods are equal for theoretical models and yield similar results on realizations.
 The models are sensitive to outliers and work best on data that follows a normal (gaussian) distribution.
 
 
 ### OLS - Ordinary Least Square 
-
 
 Procedure:
 1) estimate the global mean and determine xt = yt - m
@@ -797,6 +863,8 @@ These equations are used for fitting an AR(p)-model:
 
 Note: the model coefficients and the ACF values are interlaced
 
+R-code: ar.yw(data, order = p)
+
 ### Burg' Equation's Algorithm
 
 Another fitting cost function that exploit (erschliessen) the first p function values. 
@@ -805,20 +873,66 @@ R-code: ar.burg(data, order.max=p)
 
 ### MLE - Maximum Likelihood Estimator
 
-Determines the parameter based on an optimization of the maximum likelihood function.
+Determines the parameter based on an optimization of the maximum likelihood function. This requires the choice of a probability model for the time series.
 
 R-code: arima(data, order=c(2,0,0))
 
+
+->>>> All estimation methods mentioned above yield similar results.
+
+**How to choose the optimum model order p?**
 
 ### AIC - Akaike Information Criterion
 
 Estimates the relative amount of information list by the considered model. Based on the idea, that less information a model loses, the higher the quality of that model. 
 
+
+##3) Model Diagnostic 
+
+### Residual Analysis to check whether the model fit is appropriate
+
+Checkresiduals() function in R provides a graphical and text output. We get a plot of the residuals, their ACF correlogram and the histogram of the residuals.
+
+How to test:
+- Visually by plotting
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('visu.png')
+```
+
+- ACF/PACF of the new time series
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('visu2.png')
+```
+
+- QQ plot of the new time series
+
+```{r´, echo = F, out.width='100%'}
+knitr::include_graphics('qq.png')
+```
+
+- Simulating the time series models and qualitative comparisons
+
+```{r, echo = F}
+knitr::include_graphics('visu3.png')
+```
+
+
 ## MA(q)
+
+MA models are an extension of the White Noise process. The process is stationary but not iid. It's a linear combination of the current innovation term Et, plus the q most recent ones Et-1,...,Et-q
+
+- are (weakly) stationary
+- **clear cut-off in the ACF** ->  p(k) = 0 for all k larger than q
+- **PACF dislays a fast decaying** or a damped sinusoid behaviour
+- the order q is derived by the lag where the autocorrelation function has a cut-off.
 
 ```{r, echo = F, out.width= '50%'}
 knitr::include_graphics('ma.png')
 ```
+
+A MA model does not have an explicit reference to previous values; only the innovation parts are considered.
 
 ```{r, echo = F, out.width= '50%'}
 knitr::include_graphics('ma1.png')
@@ -829,6 +943,78 @@ knitr::include_graphics('ma2.png')
 ```
 
 
+### Invertibility
+
+Invertability of an MA model means that you can reformulate it as an AR(infinity) model. This is a property specific to MA models, because AR(p) models are automatically AR(infinity) models. 
+
+The benefit of being invertible for an MA model is that you can reformulate this model as being exclusively dependent on the past.
+
+**Why is this the case?**
+
+An AR model expresses the next time step as a superposition of the previous steps. Therefore, only your past and a bit of noise (innovation) influences your future. 
+
+If we consider a non-invertible MA model, such as  Xt=Et−2Et−1. Then we can rewrite this into: Et=Xt+2Et−1 
+
+Evaluating the **Et=Xt+2Et−1** equation at time  t−1  we obtain: 
+
+**Et−1=Xt−1+2Et−2** 
+
+Inserting this in the equation **Xt=Et−2Et−1**, we get: 
+Xt=Et−2(Xt−1+2Et−2)=−2Xt−1+Et−4Et−2=−2Xt−1+Et−4(Xt−2+2Et−3)… 
+
+This equation does not converge (annähern), because |θ1| > 1. Therefore, more information than just the past steps is required.
+
+Just as we can define an infinite-order moving average process, we can also define an infinite-order autoregressive process, AR(∞). It turns out that any stationary MA(q) process can be expressed as an AR(∞) process. E.g. suppose we have an MA(1) process with μ = 0.
+
+It turns out that if |θ1| < 1 then this infinite series converges to a finite value. Such MA(q) processes are called invertible.
+
+Property 1: If |θ1| < 1 then the MA(1) process is invertible
+
+Property 2: If |θ2| < 1 and |θ1| + θ2 < 1 then the MA(2) process is invertible
+
+• An MA(1)-, or in general an MA(q)-process is said to be invertible if the roots of the characteristic polynomial lie outside of the unit circle.
+
+• Under this condition, there exists only one MA(q)-process for any given ACF. But please note that any MA(q) is stationary, no matter if it is invertible or not.
+
+• The condition on the characteristic polynomial translates to restrictions on the coefficients. For any MA(1)-model, is required.
+
+R-code: polyroot() ->> for finding the roots
+
+### Fitting MA(q)-Models 
+
+**1) Model identification and order identification**
+- MA(q) models are (weakly) stationary
+- ACF: clear cut-off -> p(k) = 0 for all k larger than q
+- PACF: fast decaying or damped sinusoid behaviour
+- order identification (cut-off of ACF)
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('ident.png')
+```
+
+
+**2) Parameter Estimation and Fitting**
+- Yule-Walker-Equations
+  R-code: ma.yw(data, order = q)
+
+- MLE - Maximum-Likelihood Estimation (Default method in R)
+  R-code: arima(data, order=c(...), method='CSS-ML')
+  
+- Conditional Sum of Squares
+  R-code: arima(data, order=c(...), method='CSS')
+  
+  MA(1) = order= c(0,0,1)
+  MA(2) = order= c(0,0,2)
+
+**3) Model Diagnostic -> Residual Analysis**
+- plot of the residuals for (Êt) the fit
+- QQ plot of Êt (residuals)
+- ACF/PACF plot of the residuals (Êt) from the fit
+  R-code: tsdisplay(fit$residuals)
+->>> the residuals should look like White Noise
+- simulation of time series and qualitative comparison
+
+
 ## ARMA (p,q)
 
 AR and MA together gives the following formula:
@@ -836,21 +1022,157 @@ AR and MA together gives the following formula:
 ```{r, echo = F, out.width='25%'}
 knitr::include_graphics('arma.png')
 ```
+```{r, echo = F, out.width='50%'}
+knitr::include_graphics('arma1.png')
+```
 
+ARMA models are used if ACF and PACF have NO clear cut-off.
+We assume that Et is causal and White Noise.
+
+
+### Fitting ARMA(p,q)-Models 
+
+**1) Model identification and order identification**
+- model need to be stationary
+- ACF and PACF: drop at (p/q), no clear cut-off
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('ident.png')
+```
+
+- order identification for p and q
+->>>> trial and error method!!! Typical range: p + q <= 5
+
+
+**2) Parameter Estimation and Fitting**
+  
+- Conditional Sum of Squares for any invertible ARMA(p,q) process
+  R-code: arima(data, order=c(...), method='CSS')
+  
+  ARMA(1,1) = order= c(1,0,1)
+  ARMA(2,1) = order= c(2,0,1)
+  ...
+  
+- MLE - Maximum-Likelihood Estimation (Default method in R) for ARMA after CSS-process
+  R-code: arima(data, order=c(...), method='CSS-ML')
+  
+  
+**FITTING**
+R-code:
+fit <- auto.arima(data,max.p=10, max.q = 10, stationary = TRUE, seasonal = FALSE, ic = 'aic', stepwise = FALSE)
+
+max.p = 10//max.q = 10 --> anzahl lags bzw. bis zu welchem bereich man maximal untersuchen möchte
+ic = information criterion wird normal auf 'aic' gesetzt
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('fit.png')
+```
+
+---> intercept: ist die empfohlene Mittelwertsverschiebung und wird der Gleichung mit + m hinzugefügt
+
+**How to find the best model?**
+
+----> compare different models with AIC and visually inspect the fitting quality
+
+**3) Model Diagnostic -> Residual Analysis**
+- plot of the residuals for (Êt) the fit
+- QQ plot of Êt (residuals)
+- ACF/PACF plot of the residuals (Êt) from the fit
+  R-code: tsdisplay(fit$residuals)
+->>> the residuals should look like White Noise
+- simulation of time series and qualitative comparison
+R-code: tsdisplay(resid(fit))
+
+
+# Linear Regression with Time Series
+
+Linear Regressions are used for modeling time series depending on external variables (other time series). One of the major challenges is, that often in real world data, the errors may be strongly correlated. Thatswhy an conventional fit with OLS is not possible. Only is the independent variables seem to be uncorrelated we can use the model. 
+
+```{r,echo = F, out.width='25%'}
+knitr::include_graphics('gls.png')
+```
+Yt = abhängige Variable (Oxidant)
+beta0 = offset
+beta1 = linearer beitrag variable 1 (wind)
+beta2 = linearer beitrag variable 2 (temperatur)
+Et = Fehler (hier sammelt sich alles was NICHT gefittet werden konnte)
+
+**IMPORTANT** 
+The Et term in this model stands for an ERROR-TERM not an innocation as in AR,MA or ARMA models!!!
+
+- check if independent variables are independent from each other (with plot)
+- check if time series is stationary
+- check if errors (Et) are independent and check the ACF/PACF structure with plot(resid(fit.lm))
+--->>>>> whenever the error terms are dependent,the error estimation of the linear regression is not valid (error statistics from summary(lm) not usable)
+- dependent variable (Yt) should not have an effect on the independent variables (xt1, xt2 = wind, temperature)
+
+
+## Durbin-Watson Test
+
+The test assesses the autocorrelation in the residuals by calculation the test statistics
+
+```{r, echo=F, out.width='50%'}
+knitr::include_graphics('dwt.png')
+```
+Important: the test won't check any correlation level, so an additional check with ACF and PACF is neccessary.
+
+R-code:
+library(lmtest)
+dwtest()
+
+The test could be dangerous because it is possbile that is does not show an existing correlation
+
+
+## Cochrane-Orcutt Method
+
+The method is valid for correlated error terms. 
+
+Precondition: Residuals after linear regression display an AR(1) behavior
+
+Steps:
+1. Perform OLS - ordinary least square fit on data.
+
+2. Analyse (P)ACF and fit AR(1) model on residuals and check if it shows a AR(1) structure -> PACF with cut-off at lag 1 and ACF with damped sinus or fast decay.
+
+3. Transform data according to parameter of the residuals’ AR(1) process. use new alpha from AR(1) process and fit: 
+Yt' = Yt - (alpha) * Yt-1
+
+4. Fit the transformed data to determine the parameters of the linear model.
+
+
+## GLS - Generalized Least Square Method
+
+The method is valid for correlated error terms. 
+Solve for coefficients of linear fitting model (beta) and for the error model (alpha) at the same time based on the optimization of a maximum likelihood function.
+
+1.) define a MLE function and optimize with fitting parameter (beta - beta 1 = wind, beta = temperature)
+
+
+### Summary of fitting results for OLS and GLS
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('result.png')
+```
 
 ## ARIMA
 
-ARIMA models are non-stationary ARMA models (I = Integration) and aim to describe the autocorrelations in the data. 
+ARIMA models are non-stationary ARMA models with a Trend, which will be removed by differencing with the (I = Integration) and aim to describe the autocorrelations in the data. 
 
 ```{r, echo = F, out.width= '50%'}
 knitr::include_graphics('arima1.png')
 ```
 
+
+
 ## SARIMA
 
-Seasonal ARIMA model
+SARIMA models are non-stationary ARMA models with a Seasonality, which will be removed by differencing with the (I = Integration) and aim to describe the autocorrelations in the data. Seasonal ARIMA model
 ```{r, echo = F, out.width= '50%'}
 knitr::include_graphics('sarima.png')
+```
+
+```{r, echo = F, out.width='100%'}
+knitr::include_graphics('sar.png')
 ```
 
 
@@ -1398,7 +1720,7 @@ Findings: The acf looks quite different. We have strong negative autocorrelation
 
 ## Plug-in estimator
 
-In this exercise, we will calculate the lagged scatter plot and the plug-in estimator without employing the internal R function.
+In this exercise, we will calculate the lagged scatter plot and the plug-in estimator without employing the internal R function. 
 
 a) Write a function to calculate the lagged scatter plot estimator for the autocorrelation. For this, you may extend the code given in the lecture notes.
 ```{r}
