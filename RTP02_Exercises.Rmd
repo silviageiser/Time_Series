@@ -3,17 +3,17 @@ title: "RTP02 Exercises"
 author: "Silvia Geiser"
 date: "01/2021"
 output:
-  pdf_document:
-    toc: yes
-    toc_depth: '2'
-  word_document:
-    toc: yes
-    toc_depth: '2'
   html_document:
     number_sections: yes
     toc: yes
     toc_depth: 2
     toc_float: yes
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
 ---
 
 ```{r setup, include=FALSE}
@@ -201,6 +201,7 @@ In general, a stationary time series will have no predictable patterns in the lo
 ## Skewness
 
 The direction of the skew is dependent on whether the bulk of the material is above the mean line (negative skew) or below the mean line (positive skew).
+
 ```{r, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("skewness.png")
 ```
@@ -1516,7 +1517,8 @@ knitr::include_graphics('prob.png')
 ```
 
 
-# Estimate a simple linear probability model
+**Estimate a simple linear probability model**
+
 linearProbModel <- lm(deny ~ pirat, data = HMDA)
 ```{r, echo = F, out.width = '100%'}
 knitr::include_graphics('inter.png')
@@ -1548,12 +1550,12 @@ knitr::include_graphics('esti.png')
 Due to the non-linearity of the impact of each variable the values are not in- or decreasing linearily. We will predict the probability for two different values X and (DELTA)X and compute the difference.
 
 R-code:
-# 1. Compute the predictions for P/I ratio = 0.3, 0.4
+1. Compute the predictions for P/I ratio = 0.3, 0.4
 predictions <- predict(probitModel,
 newdata = data.frame("pirat" = c(0.3, 0.4)),
 type = "response“)
 
-# 2. Compute the difference in probabilities.
+2. Compute the difference in probabilities.
 diff(predictions)
 Answer: 0.06081433
 
@@ -1561,7 +1563,7 @@ Answer: 0.06081433
 denied increases by 6.1%.
 
 
-# Visualize the probit model
+**Visualize the probit model**
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('impact.png')
 ```
@@ -1573,13 +1575,13 @@ knitr::include_graphics('probit.png')
 
 **ATTENTION:** The interpretation here is not the same as in the probability model. We have to compute the difference. see code below:
 
-# 1. Compute the predictions for P/I ratio = 0.3
+1. Compute the predictions for P/I ratio = 0.3
 predictions <- predict(probitModelEthn,
 newdata = data.frame("a" = c("no", "yes"),
 "pirat" = c(0.3, 0.3)),
 type = "response")
 
-# 2. Compute the difference in probabilities
+2. Compute the difference in probabilities
 diff(predictions)
 Answer: 0.1578
 
@@ -1610,13 +1612,13 @@ knitr::include_graphics('visi.png')
 knitr::include_graphics('ethic.png')
 ```
 
-# 1. Compute the predictions for P/I ratio = 0.3
+1. Compute the predictions for P/I ratio = 0.3
 predictions <- predict(logitModelEthn,
 newdata = data.frame(“afam" = c("no", "yes"),
 "pirat" = c(0.3, 0.3)),
 type = "response")
 
-# 2. Compute the difference in probabilities
+2. Compute the difference in probabilities
 diff(predictions)
 Answer: 0.1493
 
