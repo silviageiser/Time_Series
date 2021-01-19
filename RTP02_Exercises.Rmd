@@ -3,17 +3,17 @@ title: "RTP02 Exercises"
 author: "Silvia Geiser"
 date: "01/2021"
 output:
-  pdf_document:
-    toc: yes
-    toc_depth: '2'
-  word_document:
-    toc: yes
-    toc_depth: '2'
   html_document:
     number_sections: yes
     toc: yes
     toc_depth: 2
     toc_float: yes
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
 ---
 
 ```{r setup, include=FALSE}
@@ -201,6 +201,7 @@ In general, a stationary time series will have no predictable patterns in the lo
 ## Skewness
 
 The direction of the skew is dependent on whether the bulk of the material is above the mean line (negative skew) or below the mean line (positive skew).
+
 ```{r, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("skewness.png")
 ```
@@ -290,15 +291,15 @@ knitr::include_graphics('rtp_diff.png')
 knitr::include_graphics('derivative.png')
 ```
 
-
 Summary:
-+ trend and seasonal effect can be removed
-+ procedure is very quick and very simple to implement
 
-- trend, season and remainder component are NOT known, and cannot be visualised
-- resulting time series will be shorter than original data set
-- differencing creates artificial new dependencies that are different from the original ones
-- extrapolation of trend, season and remainder is not easily possible
+ + trend and seasonal effect can be removed
+ + procedure is very quick and very simple to implement
+
+ - trend, season and remainder component are NOT known, and cannot be visualised
+ - resulting time series will be shorter than original data set
+ - differencing creates artificial new dependencies that are different from the original ones
+ - extrapolation of trend, season and remainder is not easily possible
 
 
 ## Random Walk
@@ -323,7 +324,7 @@ knitr::include_graphics('2nd.png')
 
 ### Taylor's Theorem
 
-```{r}
+```{r, echo = F, out.width = '100%'}
 knitr::include_graphics('taylor.png')
 ```
 
@@ -445,20 +446,38 @@ knitr::include_graphics('filter_ex.png')
 
 ### Exponential smoothing filter
 
+This was constructed as a modelfree, intuitive weighting scheme that allows forecasting of time series. Due to its
+simplicity and the convenient implementation in the HoltWinters() and other
+procedures in R, it is very popular and often used in applied sciences. 
 
+> www <- "http://staff.elena.aut.ac.nz/Paul-Cowpertwait/ts/"
+> dat <- read.table(paste(www,"motororg.dat",sep="", head=T)
+> cmpl <- ts(dat$complaints, start=c(1996,1), freq=12)
+> plot(cmpl, ylab="", main="Complaints ...") 
+
+> fit <- HoltWinters(cmpl, beta=FALSE, gamma=FALSE); fit
+Call: HoltWinters(x = cmpl, beta = FALSE, gamma = FALSE)
+Smoothing parameters:
+ alpha: 0.1429622
+ beta : FALSE
+ gamma: FALSE
+Coefficients:
+ [,1]
+a 17.70343
+> plot(fit) 
 
 ### Advantages and Drawbacks
 
-Soomthing, filtering:
+Smoothing, filtering:
 
-+ trend and seasonal effect can be estimated
-+ trend, season and remainder are explicitly known & can be visualized 
-+ procedure is transparent and simple to implement
+ + trend and seasonal effect can be estimated
+ + trend, season and remainder are explicitly known & can be visualized 
+ + procedure is transparent and simple to implement
 
-- resulting time series will be shorter than the original
-- the running mean is not the very best smoother
-- extraolation of trend and season are not entirely obvious
-- seasonal effect is handled as constant over time
+ - resulting time series will be shorter than the original
+ - the running mean is not the very best smoother
+ - extraolation of trend and season are not entirely obvious
+ - seasonal effect is handled as constant over time
 
 
 ## Decomposition
@@ -471,6 +490,7 @@ Additive: Xt = Trend + Seasonal + Random
 Multiplicative: Xt = Trend * Seasonal * Random
 
 **How to Choose Between Additive and Multiplicative Decompositions**
+
 - The additive model is useful when the seasonal variation is relatively constant over time.
 - The multiplicative model is useful when the seasonal variation increases over time.
 
@@ -490,18 +510,27 @@ knitr::include_graphics("components.png")
 
 Have a look at the following set of time series. For every series, shortly answer the following questions
 (motivate your answers):
+
 • Is the time series stationary?
+
 • Is there a trend?
+
 • Can one find some seasonal effect? If yes, what is the period?
+
 • Which transformation should be applied (if required)?
+
 ```{r, echo=FALSE,out.width = '100%'}
 knitr::include_graphics("Ex1.3a.PNG")
 ```
 
 Answer: 
+
 - non stationary
+
 - non linear trend, mostly increasing 
+
 - no seasonal component
+
 - log transformation
 
 ```{r, echo=FALSE,out.width = '100%'}
@@ -509,8 +538,11 @@ knitr::include_graphics("Ex1.3b.PNG")
 ```
 
 Answer: 
+
 - seems stationary
+
 - trend from before was removed by diff(difference = 1)
+
 - constant variance achieved by taking the logarithm. However Log-Returns are NOT stationary, because of volatility clusters
 
 ```{r, echo=FALSE,  out.width = '100%'}
@@ -518,9 +550,13 @@ knitr::include_graphics("Ex1.3c.PNG")
 ```
 
 Answer:
+
 - non stationary
+
 - exponential increasing trend
+
 - seasonal component with period 1 year
+
 - increasing variance, log transformation benefitial to get additive components
 
 ```{r, echo=FALSE, out.width = '100%'}
@@ -528,31 +564,45 @@ knitr::include_graphics("Ex1.3d.PNG")
 ```
 
 Answer:
+
 - non stationary
+
 - increasing trend
+
 - seasonal component with period 1 year and increasing variance
-- increasing variance, log transformation benefitial to get additibe components
+
+- increasing variance, log transformation benefitial to get additive components
 
 ```{r, echo=FALSE,  out.width = '100%'}
 knitr::include_graphics("Ex1.3e.PNG")
 ```
 
 Answer:
+
 - non stationary
+
 - no visible trend
+
 - seasonal effect with period 1 year
 
 Yeary numbers of sunspots:
+
 ```{r, echo=FALSE, out.width = '100%'}
 knitr::include_graphics("Ex1.3f.PNG")
 ```
 
 Answer:
+
 - likely to be stationary
+
 - no trend
+
 - no seasonal effect
+
 - periodicity with period of 11 years
+
 - variance maybe different over time
+
 - log transformation required due to right skewness
 
 ```{r, echo=FALSE, out.width = '100%'}
@@ -560,9 +610,13 @@ knitr::include_graphics("Ex1.3g.PNG")
 ```
 
 Answer:
+
 - probably stationary
+
 - no clear trend visible
+
 - no seasonal effect visible
+
 - no transformation required
 
 
@@ -584,7 +638,8 @@ knitr::include_graphics('auto.png')
 a) lag 10*log10(n)
 b) lag n/4
 - The estimated sample ACs can be highly correlated.
-**- The correlogram is only meaningful for stationary series!!!**
+
+**The correlogram is only meaningful for stationary series!!!**
 
 
 ## Lagged Scatterplots
@@ -613,9 +668,13 @@ Strategies for coping with outliers:
 a) Delete the point or replace it with Na (most functions in R can handle this)
 
 Replace the outlier value with
+
 b) global mean of the series
+
 c) nearest value in the vicinity
+
 d) local mean of the series (i.e. odd number of surrounding values)
+
 e) fit a time series model to the remaining/surrounding values and predict the missing value
 
 
@@ -632,7 +691,7 @@ knitr::include_graphics('comp.png')
 
 **Formula**
 
-```{r, echo = F, out.width='100%'}
+```{r, echo = F, out.width='70%'}
 knitr::include_graphics('plugin.png')
 ```
 
@@ -645,7 +704,7 @@ knitr::include_graphics('lag_plug.png')
 
 ## Autocorrelation ACF
 
-The ACF plot is also useful for identifying non-stationary time series. For a stationary time series, the ACF will drop to zero relatively quickly, while the ACF of non-stationary data decreases slowly. Also, for non-stationary data, the value of r1 is often large and positive.
+The ACF plot is also useful for identifying non-stationary time series. For a stationary time series, the ACF will drop to zero relatively quickly, while the ACF of non-stationary data decreases slowly. Also, for non-stationary data, the value of r1 is often large and positive. It is used to determine the order of a MA(q) model. Spikes outside the confident band as used to define order q.
 
 - For time series shorter than 100 elements, the plug-in estimator p(k) is biased
 
@@ -654,6 +713,7 @@ knitr::include_graphics('cor.png')
 ```
 
 Concept:
+
 The correlation p(k)^2 squared corresponds to the percentage of variability explained by the linear association between Xt and Xt+k -> R^2.
 
 **Variance: Var(Xt) = E[(Xt-mean)^2] = Cov(Xt,Xt) with mean = E[Xt]**
@@ -681,13 +741,13 @@ When data are seasonal, the autocorrelations will be larger for the seasonal lag
 When data are both trended and seasonal, you see a combination of these effects. 
 
 
-
 ## Partial Autocorrelation PACF
 
 The ACF measures the „simple“ dependence between and , whereas the PACF measures that dependence in a „multiple“ fashion.
-Given a time series , the partial autocorrelation of lag , is the autocorrelation between and with the linear
+Given a time series, the partial autocorrelation of lag, is the autocorrelation between and with the linear
 dependence of through to removed.
-It is a conditional correlation of the random variables A, B under condition C.
+It is a conditional correlation of the random variables A, B under condition C. It is used to determine the order for a AR(p) model. Spikes outside the confident band are used as order p.
+
 
 ## Ljung-Box Test
 
@@ -720,16 +780,21 @@ It is common to plot these bounds on a graph of the ACF. If one or more large sp
 ## STL Decomposition
 
 The Seasonal-Trend Decomposition Procedure by Loess
+
 • is an iterative, non-parametric smoothing algorithm
 • yields a simultaneous estimation of trend and seasonal effect
+
 -> robust!
-+ very simple to apply
-+ very illustrative and quick
-+ seasonal effect can be constant or smoothly varying
-- model free, extrapolation and forecasting is difficult
+
+ + very simple to apply
+ 
+ + very illustrative and quick
+ 
+ + seasonal effect can be constant or smoothly varying
+ 
+ - model free, extrapolation and forecasting is difficult
 
 -> Good method for „having a quick look at the data“
-
 
 
 
@@ -738,16 +803,23 @@ The Seasonal-Trend Decomposition Procedure by Loess
 Exponential smoothing and ARIMA models are the two most widely used approaches to time series forecasting, and provide complementary approaches to the problem. While exponential smoothing models are based on a description of the trend and seasonality in the data, ARIMA models aim to describe the autocorrelations in the data.
 
 Steps: 
+
 - remove trend
+
 - remove seasonality
+
 - fit residuals
 
 
 Purpose of modelling:
+
 - to explain hidden structures
+
 - to predict future values
 
+
 Challenge:
+
 - What model is the most suitable model?
 
 ```{r, echo=F, out.width= '100%'}
@@ -763,6 +835,7 @@ knitr::include_graphics('over.png')
 ```{r, echo =F, out.width='100%'}
 knitr::include_graphics('arima.png')
 ```
+
 ## Simulating data
 
 ### Simulating an AR(p) model
@@ -780,10 +853,13 @@ R-code: arima.sim(n = 1000, list(ar=c(alpha1, alpha2,...,alpha(p)),ma=c(beta1, b
 ### Theoretical autocorrelation function
 
 R-code: ARMAacf(ar=c(alpha1,alpha2,...,alpha(p)), pacf=TRUE)
-R-code: ARNAacf(ma=c(beta1,beta2,...,beta(q)), pacf= TRUE)
+
+R-code: ARMAacf(ma=c(beta1,beta2,...,beta(q)), pacf= TRUE)
 
 
 ## Characteristic polynomial
+
+It determines all the relevant properties of the process. 
 
 ```{r, echo = F, out.width= '75%'}
 knitr::include_graphics('poly.png')
@@ -792,9 +868,20 @@ knitr::include_graphics('poly.png')
 
 ## AR(p) - Autoregressive Models
 
-AR Models are exclusively used for the modeling of STATIONARY processes and base on the idea that the current value of the series can be explained by a linear combination of the p previous values **Xt-p + et (et = innovation = 'completely independent term'). Meaning, we forecast the variable of interest using a linear combination of past values of the variable. The term autoregression indicates that it is a regression of the variable against itself.
+AR Models are exclusively used for the modeling of STATIONARY processes and base on the idea that the current value of the series can be explained by a linear combination of the p previous values **Xt-p + et (et = innovation = 'completely independent term').
+Meaning, we forecast the variable of interest using a linear combination of past values of the variable. The term autoregression indicates that it is a regression of the variable against itself.
 
-```{r, echo = F, out.width= '50%'}
+Note: The (potentially complex) roots of the characteristic polynomial (Phi)B must all exceed 1 in absolute value for an AR (p) process to be stationary. 
+
+In R, there is function polyroot() for finding a polynomials roots. If we want to
+verify whether an AR(3) is stationary, we type:
+
+> abs(polyroot(c(1,-0.4,0.2,-0.3)))
+[1] 1.405467 1.540030 1.540030 
+
+--->> Stationary as all roots are > 1.
+
+```{r, echo = F, out.width= '70%'}
 knitr::include_graphics('ar.png')
 ```
 
@@ -820,8 +907,11 @@ knitr::include_graphics('ar1.png')
 ### Fitting AR(p)-Models 
 
 **1) Model identification and order identification**
+
 - is an AR process suitable, and what is the p?
+
 - will be based on ACF/PACF-Analysis (ACF fast decaying/PACF cut-off at p)
+
 - order identification (cut-off of PACF)
 
 ```{r, echo = F, out.width='100%'}
@@ -830,24 +920,33 @@ knitr::include_graphics('ident.png')
 
 
 **2) Parameter Estimation and Fitting**
+
 - Regression approach with OLS
+
 - Yule-Walker-Equations
+
 - MLE
+
 - Burg-Algorithm
 
 **3) Model Diagnostic -> Residual Analysis**
+
 - Time Series plot of Êt (Êt = Residuals)
+
 - ACF/PACF plot of Êt (Êt = Residuals)
+
 - QQ-plot of Êt (Êt = Residuals)
+
 ->>> the innovation time series Êt should look like White Noise
+
 - simulation of time series and qualitative comparison
 
-###1) Autocorrelation of AR(p) processes
+### 1) Autocorrelation of AR(p) processes
 
 Autocorrelation function is used to clarify if the AR(p) model is the right choice and what is the proper order p for the given data, but it will turn out that the ACF is not sufficient, while we need to use the **partial autocorrelation**.
 
 
-##2) Parameter identification
+## 2) Parameter identification
 
 The following methods are equal for theoretical models and yield similar results on realizations.
 The models are sensitive to outliers and work best on data that follows a normal (gaussian) distribution.
@@ -856,8 +955,11 @@ The models are sensitive to outliers and work best on data that follows a normal
 ### OLS - Ordinary Least Square 
 
 Procedure:
+
 1) estimate the global mean and determine xt = yt - m
+
 2) carry out regression on xt without intercept; resulting parameters are a1, a2, ... , a(p)
+
 3) estimate the standard deviation (sd) of the innovation from the standard deviation of the residual
 
 R-code: ar.ols(data, order = p)
@@ -868,7 +970,9 @@ R-code: ar.ols(data, order = p)
 These equations are used for fitting an AR(p)-model:
 
 1) estimate the ACF from a time series
+
 2) plug-in the estimates into the Yule-Walker-Equations
+
 3) the solution are the AR(p)-coefficients
 
 Note: the model coefficients and the ACF values are interlaced
@@ -901,11 +1005,11 @@ Estimates the relative amount of information list by the considered model. Based
 Similar to AIC. Will be used for evaluating model fit and choosen parameters. Same as the AIC the BIC will be used in the auto.arima() function for automated order/model fit.
 
 
-##3) Model Diagnostic 
+## 3) Model Diagnostic 
 
 ### Residual Analysis to check whether the model fit is appropriate
 
-Checkresiduals() function in R provides a graphical and text output. We get a plot of the residuals, their ACF correlogram and the histogram of the residuals.
+checkresiduals() function in R provides a graphical and text output. We get a plot of the residuals, their ACF correlogram and the histogram of the residuals.
 
 How to test:
 - Visually by plotting
@@ -922,7 +1026,7 @@ knitr::include_graphics('visu2.png')
 
 - QQ plot of the new time series
 
-```{r´, echo = F, out.width='100%'}
+```{r, echo = F, out.width='100%'}
 knitr::include_graphics('qq.png')
 ```
 
@@ -969,9 +1073,7 @@ An AR model expresses the next time step as a superposition of the previous step
 
 If we consider a non-invertible MA model, such as  Xt=Et−2Et−1. Then we can rewrite this into: Et=Xt+2Et−1 
 
-Evaluating the **Et=Xt+2Et−1** equation at time  t−1  we obtain: 
-
-**Et−1=Xt−1+2Et−2** 
+Evaluating the **Et=Xt+2Et−1** equation at time  t−1  we obtain: **Et−1=Xt−1+2Et−2** 
 
 Inserting this in the equation **Xt=Et−2Et−1**, we get: 
 Xt=Et−2(Xt−1+2Et−2)=−2Xt−1+Et−4Et−2=−2Xt−1+Et−4(Xt−2+2Et−3)… 
@@ -998,9 +1100,13 @@ R-code: polyroot() ->> for finding the roots
 ### Fitting MA(q)-Models 
 
 **1) Model identification and order identification**
+
 - MA(q) models are (weakly) stationary
+
 - ACF: clear cut-off -> p(k) = 0 for all k larger than q
+
 - PACF: fast decaying or damped sinusoid behaviour
+
 - order identification (cut-off of ACF)
 
 ```{r, echo = F, out.width='100%'}
@@ -1009,6 +1115,7 @@ knitr::include_graphics('ident.png')
 
 
 **2) Parameter Estimation and Fitting**
+
 - Yule-Walker-Equations
   R-code: ma.yw(data, order = q)
 
@@ -1022,11 +1129,16 @@ knitr::include_graphics('ident.png')
   MA(2) = order= c(0,0,2)
 
 **3) Model Diagnostic -> Residual Analysis**
+
 - plot of the residuals for (Êt) the fit
+
 - QQ plot of Êt (residuals)
+
 - ACF/PACF plot of the residuals (Êt) from the fit
   R-code: tsdisplay(fit$residuals)
+
 ->>> the residuals should look like White Noise
+
 - simulation of time series and qualitative comparison
 
 
@@ -1048,7 +1160,9 @@ We assume that Et is causal and White Noise.
 ### Fitting ARMA(p,q)-Models 
 
 **1) Model identification and order identification**
+
 - model need to be stationary
+
 - ACF and PACF: drop at (p/q), no clear cut-off
 
 ```{r, echo = F, out.width='100%'}
@@ -1073,6 +1187,7 @@ knitr::include_graphics('ident.png')
   
   
 **FITTING**
+
 R-code:
 fit <- auto.arima(data,max.p=10, max.q = 10, stationary = TRUE, seasonal = FALSE, ic = 'aic', stepwise = FALSE)
 
@@ -1093,12 +1208,18 @@ knitr::include_graphics('fit.png')
 ----> compare different models with AIC and visually inspect the fitting quality
 
 **3) Model Diagnostic -> Residual Analysis**
+
 - plot of the residuals for (Êt) the fit
+
 - QQ plot of Êt (residuals)
+
 - ACF/PACF plot of the residuals (Êt) from the fit
   R-code: tsdisplay(fit$residuals)
+  
 ->>> the residuals should look like White Noise
+
 - simulation of time series and qualitative comparison
+
 R-code: tsdisplay(resid(fit))
 
 
@@ -1109,19 +1230,28 @@ Linear Regressions are used for modeling time series depending on external varia
 ```{r,echo = F, out.width='25%'}
 knitr::include_graphics('gls.png')
 ```
+
 Yt = abhängige Variable (Oxidant)
+
 beta0 = offset
+
 beta1 = linearer beitrag variable 1 (wind)
+
 beta2 = linearer beitrag variable 2 (temperatur)
+
 Et = Fehler (hier sammelt sich alles was NICHT gefittet werden konnte)
 
 **IMPORTANT** 
 The Et term in this model stands for an ERROR-TERM not an innocation as in AR,MA or ARMA models!!!
 
 - check if independent variables are independent from each other (with plot)
+
 - check if time series is stationary
+
 - check if errors (Et) are independent and check the ACF/PACF structure with plot(resid(fit.lm))
+
 --->>>>> whenever the error terms are dependent,the error estimation of the linear regression is not valid (error statistics from summary(lm) not usable)
+
 - dependent variable (Yt) should not have an effect on the independent variables (xt1, xt2 = wind, temperature)
 
 
@@ -1249,6 +1379,7 @@ knitr::include_graphics('sarout1.png')
 ```
 
 **Steps:**
+
 1. Estimate the seasonality period s visually. The order of differentiation D (for the seasonality part) is typically less or equal to 1.
 
 2. Check if another differentiation of lag 1 is required for stationarity. If yes, try d=1, else d=0.
@@ -1269,10 +1400,13 @@ knitr::include_graphics('ets_arima.png')
 # Non-Linear Modeling for time series with changing variability
 
 - Position of free-falling objects Xt = x0 - 1/2 g t^2
+
 - Data with cyclic behavior and quicker increase than decrease
+
 - Data with changing standard deviation (Heteroskedascity)
 
 ---> Heteroskedascity 
+
 is data with a changing standard deviation and therefore non stationary, because the variance is changing over time
 
 ## ARCH/GARCH Models
@@ -1289,7 +1423,9 @@ knitr::include_graphics('arch.png')
 Xt = standard deviation (for t) * white noise (for t)
 
 As an ARCH(p) is an AR(p) process of Xt^2 (squared Xt) the order p is identified by:
+
 - ACF decays exponentially
+
 - PACF has a cut-off at p
 
 Die quadrierten Werte im ACF sollen exponentiell schnell zerfallen und die PACF einen Cut-off bei p haben
@@ -1314,7 +1450,9 @@ knitr::include_graphics('arch1.png')
 ```
 
 a0 = off set (alpha0 parameter)
+
 a1 = alpha1 parameter
+
 a2 = alpha2 parameter 
 
 
@@ -1358,19 +1496,25 @@ knitr::include_graphics('fore.png')
 Please be aware, that an extrapolation could be wrong and is based on uncertainties:
 
 1. Is the model of the past data also appropriate for the future?(e.g. change of behavior, policy)
+
 2. Did you choose the order of the ARMA(p,q) correctly?
+
 3. Are the fitting parameters in the model (sufficiently) accurate?
+
 4. How can you assess the contribution/variability of the innovation terms Et?
+
 -> Therefore, we must restrict ourselves to short-term forecasting.
 
 ## Predict values for AR(p) models
 
 How to predict values of stationary models?
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('predict.png')
 ```
 
 Use window of data to check prediction. Code example
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('window.png')
 ```
@@ -1380,8 +1524,11 @@ Predictions for higher AR(p) models use more past values to predict the future v
 ### Summary for forcasting AR(p) processes
 
 - Only the last p observations are required for the forecast and the prognosis interval.
+
 - The prognosis intervals only consider the uncertainty of the innovation. Other sources are neglected.
+
 --->>>> In general, the uncertainties are underestimated
+
 - As a check: Truncate the time series and test the fitting data on the remaining data. The accuracy of the prediction of the actual measurement values may give you a hint about its accuracy.
 
 ## Predict values for  MA(q) models and ARMA(p,q) models
@@ -1400,7 +1547,9 @@ knitr::include_graphics('maarma.png')
 Features:
 
 - The predicted values capture the trend and seasonality (cf. following example)
+
 - The prediction intervals will typically increase over time.
+
 - The prediction quality of the trend is not ascertained and may be poor.
 
 ```{r, echo = F, out.width = '100%'}
@@ -1418,7 +1567,9 @@ knitr::include_graphics('res.png')
 **Decomposition workflow:**
 
 1. Remove trend
+
 2. Remove seasonality effects
+
 3. Fit the remainder with an ARMA(p,q) model
 
 ```{r, echo = F, out.width='100%'}
@@ -1428,21 +1579,25 @@ knitr::include_graphics('decomp.png')
 **How to use this decomposition for a forecast?**
 
 1. Trend: Extrapolate linearly or manually
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('trend.png')
 ```
 
 2. Seasonal pattern: Copy previous values or extrapolate
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('seas.png')
 ```
 
 3. Stationary remainder: Use forecast functions.
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('resid.png')
 ```
 
 4. Adding the 3 components of the forecasts above
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('add.png')
 ```
@@ -1454,6 +1609,7 @@ knitr::include_graphics('add.png')
 Panel data is a set of n observations mit mindestens 2 Beobachtungen pro Zeiteinheit.
 
 Balanced data: in all columns is data
+
 Unbalanced: not in all columns is data 
 
 ## Ordinary regression
@@ -1482,6 +1638,7 @@ knitr::include_graphics('dep.png')
 ```
 
 Solution: fit this model to the data
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('dep1.png')
 ```
@@ -1491,6 +1648,7 @@ knitr::include_graphics('fixed.png')
 ```
 
 R-code:
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('rcode.png')
 ```
@@ -1516,8 +1674,10 @@ knitr::include_graphics('prob.png')
 ```
 
 
-# Estimate a simple linear probability model
+**Estimate a simple linear probability model**
+
 linearProbModel <- lm(deny ~ pirat, data = HMDA)
+
 ```{r, echo = F, out.width = '100%'}
 knitr::include_graphics('inter.png')
 ```
@@ -1541,6 +1701,7 @@ knitr::include_graphics('glm.png')
 ```
 
 Estimation:
+
 ```{r, echo = F, out.width = '100%'}
 knitr::include_graphics('esti.png')
 ```
@@ -1548,12 +1709,12 @@ knitr::include_graphics('esti.png')
 Due to the non-linearity of the impact of each variable the values are not in- or decreasing linearily. We will predict the probability for two different values X and (DELTA)X and compute the difference.
 
 R-code:
-# 1. Compute the predictions for P/I ratio = 0.3, 0.4
+1. Compute the predictions for P/I ratio = 0.3, 0.4
 predictions <- predict(probitModel,
 newdata = data.frame("pirat" = c(0.3, 0.4)),
 type = "response“)
 
-# 2. Compute the difference in probabilities.
+2. Compute the difference in probabilities.
 diff(predictions)
 Answer: 0.06081433
 
@@ -1561,11 +1722,11 @@ Answer: 0.06081433
 denied increases by 6.1%.
 
 
-# Visualize the probit model
+**Visualize the probit model**
+
 ```{r, echo = F, out.width='100%'}
 knitr::include_graphics('impact.png')
 ```
-
 
 ```{r, echo = F, out.width = '100%'}
 knitr::include_graphics('probit.png')
@@ -1573,13 +1734,13 @@ knitr::include_graphics('probit.png')
 
 **ATTENTION:** The interpretation here is not the same as in the probability model. We have to compute the difference. see code below:
 
-# 1. Compute the predictions for P/I ratio = 0.3
+1. Compute the predictions for P/I ratio = 0.3
 predictions <- predict(probitModelEthn,
 newdata = data.frame("a" = c("no", "yes"),
 "pirat" = c(0.3, 0.3)),
 type = "response")
 
-# 2. Compute the difference in probabilities
+2. Compute the difference in probabilities
 diff(predictions)
 Answer: 0.1578
 
@@ -1590,6 +1751,7 @@ denied increases by 15.8 % if the applicant is Afro-American.
 ## Logit Regression
 
 This regression is quite similar to the probit regression with the difference that we now use the cumulative logistically distribution with random variables.
+
 ```{r, echo = F, out.width = '100%'}
 knitr::include_graphics('logit.png')
 ```
@@ -1610,13 +1772,13 @@ knitr::include_graphics('visi.png')
 knitr::include_graphics('ethic.png')
 ```
 
-# 1. Compute the predictions for P/I ratio = 0.3
+1. Compute the predictions for P/I ratio = 0.3
 predictions <- predict(logitModelEthn,
 newdata = data.frame(“afam" = c("no", "yes"),
 "pirat" = c(0.3, 0.3)),
 type = "response")
 
-# 2. Compute the difference in probabilities
+2. Compute the difference in probabilities
 diff(predictions)
 Answer: 0.1493
 
@@ -1626,7 +1788,6 @@ model it was 15.8%).
 
 
 **CONCLUSION** Probit and logit regressions return more or less the same results.
-
 
 
 # Data sets and Exercises
